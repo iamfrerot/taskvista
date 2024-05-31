@@ -7,7 +7,7 @@ import { Image } from "react-native";
 export default function App() {
  return (
   <View className='h-full w-full'>
-   <SafeAreaView className='w-full border border-red-600'>
+   <SafeAreaView>
     <View className='w-full'>
      <Image source={images.firstpage} resizeMode='contain' />
     </View>
