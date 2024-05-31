@@ -4,8 +4,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: "rgba(25, 69, 157, 1)",
-        gray: "rgba(175, 175, 175, 1)"
+        primary: "#19459d",
+        gray: {
+          100: "rgba(175, 175, 175, 1)",
+          500: "rgba(54, 57, 66, 1)"
+        }
       },
       fontFamily: {
         othin: ["Outfit-Thin", "sans-serif"],
