@@ -1,9 +1,8 @@
 import { StatusBar } from "expo-status-bar";
-import { View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../constants";
 import { Image } from "react-native";
-
 export default function App() {
  return (
   <View className='h-full w-full'>
