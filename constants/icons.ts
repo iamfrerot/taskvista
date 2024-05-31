@@ -8,7 +8,7 @@ import search from "../assets/images/search.png";
 import searchfocus from "../assets/images/searchfocus.png";
 import account from "../assets/images/account.png";
 import accountfocus from "../assets/images/accountfocus.png";
-
+import arrowleft from "../assets/images/arrowleft.png";
 export default {
  account,
  accountfocus,
@@ -20,4 +20,5 @@ export default {
  tasksfocus,
  search,
  searchfocus,
+ arrowleft,
 };

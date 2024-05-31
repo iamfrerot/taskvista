@@ -20,7 +20,7 @@ export default function App() {
      <View className='w-full items-center'>
       <CustomButton
        title={"login"}
-       handlePress={() => router.push("/login")}
+       handlePress={() => router.push("/verifyotp")}
        containerStyles='bg-primary w-[90%]'
        textStyles='text-white text-xl'
       />
