@@ -52,7 +52,7 @@ const verifyotp = () => {
     <CustomButton
      title='Confirm'
      containerStyles='bg-primary mt-8 w-full rounded-[32px] h-[70px]'
-     handlePress={() => console.log("Yead")}
+     handlePress={() => router.replace("/success")}
      textStyles='text-white'
     />
    </View>
