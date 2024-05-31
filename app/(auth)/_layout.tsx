@@ -7,6 +7,7 @@ const AuthLayout = () => {
   <Stack>
    <Stack.Screen name='login' />
    <Stack.Screen name='verifyotp' options={{ headerShown: false }} />
+   <Stack.Screen name='success' options={{ headerShown: false }} />
   </Stack>
  );
 };
