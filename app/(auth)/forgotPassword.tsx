@@ -5,30 +5,34 @@ import { router } from 'expo-router';
 import CustomButton from '../../components/CustomButton';
 import { Image } from "react-native";
 import { images } from "../../constants";
-const Login = () => {
+
+const forgotPassword = () => {
   return (
     <View className="h-full w-full bg-white">
       <SafeAreaView className="flex-1 justify-center items-center px-4">
       <Image source={images.loginimg} resizeMode="contain" className='h-[40%]'/>
       <View className=" mt-10 h-[50%]' ">
-            <Text className="font-obold justify-center items-center text-2xl ">Login</Text>
+            <Text className="font-obold text-2xl ">OTP Verification</Text>
+            <Text className="font-olight text-lg   text-gray-400">
+              Enter email and phone to send one time Password.
+            </Text>
           </View>
         <View className="w-full max-w-md ">
           <TextInput
             className="border border-gray-300 p-4 mb-4 m rounded"
-            placeholder="Email"
+            placeholder="example@gmail.com"
             keyboardType="email-address"
           />
           <TextInput
             className="border border-gray-300 p-4 mb-4 rounded"
-            placeholder="Password"
+            placeholder="+0783535353"
             secureTextEntry
           />
           
           <CustomButton
           title="Confirm"
           containerStyles="bg-primary mb- w-full rounded-[32px] h-[70px]"
-          handlePress={() => router.replace("/home")}
+          handlePress={() => router.replace("/verifyotp")}
           textStyles="text-white"
         />
         </View>
@@ -37,4 +41,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default forgotPassword;
