@@ -3,37 +3,37 @@ import { View, Text, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import CustomButton from "../../components/CustomButton";
-
+import { Image } from "react-native";
+import { images } from "../../constants";
 const Login = () => {
  return (
   <View className='h-full w-full bg-white'>
    <SafeAreaView className='flex-1 justify-center items-center px-4'>
-    <View className='w-full max-w-md'>
-     <Text className='font-obold text-4xl mb-6 text-center'>Login</Text>
+    <Image source={images.loginimg} resizeMode='contain' className='h-[40%]' />
+    <View className=" mt-10 h-[50%]' ">
+     <Text className='font-obold text-2xl '>OTP Verification</Text>
+     <Text className='font-olight text-lg   text-gray-400'>
+      Enter email and phone to send one time Password.
+     </Text>
+    </View>
+    <View className='w-full max-w-md '>
      <TextInput
-      className='border border-gray-300 p-2 mb-4 rounded'
+      className='border border-gray-300 p-4 mb-4 m rounded'
       placeholder='Email'
       keyboardType='email-address'
      />
      <TextInput
-      className='border border-gray-300 p-2 mb-4 rounded'
+      className='border border-gray-300 p-4 mb-4 rounded'
       placeholder='Password'
       secureTextEntry
      />
+
      <CustomButton
-      title='Login'
-      handlePress={() => router.push("/verifyotp")}
-      containerStyles='bg-primary w-full rounded'
-      textStyles='text-white-100 text-xl'
+      title='Confirm'
+      containerStyles='bg-primary mb- w-full rounded-[32px] h-[70px]'
+      handlePress={() => router.replace("/verifyotp")}
+      textStyles='text-white'
      />
-     <View className='mt-4'>
-      <CustomButton
-       title='Sign Up'
-       handlePress={() => router.replace("/sign-up")}
-       containerStyles='border border-primary w-full rounded'
-       textStyles='text-primary text-xl'
-      />
-     </View>
     </View>
    </SafeAreaView>
   </View>
