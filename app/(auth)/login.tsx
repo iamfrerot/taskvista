@@ -11,9 +11,8 @@ const Login = () => {
    <SafeAreaView className='flex-1 justify-center items-center px-4'>
     <Image source={images.loginimg} resizeMode='contain' className='h-[40%]' />
     <View className=" mt-10 h-[50%]' ">
-     <Text className='font-obold text-2xl '>OTP Verification</Text>
-     <Text className='font-olight text-lg   text-gray-400'>
-      Enter email and phone to send one time Password.
+     <Text className='font-obold justify-center items-center text-2xl '>
+      Login
      </Text>
     </View>
     <View className='w-full max-w-md '>
@@ -31,7 +30,7 @@ const Login = () => {
      <CustomButton
       title='Confirm'
       containerStyles='bg-primary mb- w-full rounded-[32px] h-[70px]'
-      handlePress={() => router.replace("/verifyotp")}
+      handlePress={() => router.replace("/home")}
       textStyles='text-white'
      />
     </View>
