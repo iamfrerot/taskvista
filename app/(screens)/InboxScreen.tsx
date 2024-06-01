@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import ChatListScreen from '../(screens)/ChatListScreen';
-import GroupListScreen from '../(screens)/GroupListScreen';
+import { useRouter } from 'expo-router';
+import ChatListScreen from './ChatListScreen';
+import GroupListScreen from './GroupListScreen';
 
 const InboxScreen = () => {
   const [activeTab, setActiveTab] = useState('chat');
-  const navigation = useNavigation();
+  const router = useRouter();
 
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20, paddingHorizontal: 20 }}>
-           <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginRight: 10 }}>
-              <Ionicons name="arrow-back" size={24} color="black" />
-           </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 10 }}>
+          <Ionicons name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
         <Text style={{ fontSize: 24, fontWeight: 'bold', flex: 1, textAlign: 'center' }}>Messages</Text>
       </View>
 
