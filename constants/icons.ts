@@ -9,6 +9,8 @@ import searchfocus from "../assets/images/searchfocus.png";
 import account from "../assets/images/account.png";
 import accountfocus from "../assets/images/accountfocus.png";
 import arrowleft from "../assets/images/arrowleft.png";
+import notification from "../assets/images/notification.png";
+import twodots from "../assets/images/twodots.png";
 export default {
  account,
  accountfocus,
@@ -21,4 +23,6 @@ export default {
  search,
  searchfocus,
  arrowleft,
+ notification,
+ twodots,
 };

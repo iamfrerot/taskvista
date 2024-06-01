@@ -6,8 +6,11 @@ module.exports = {
       colors: {
         primary: "#19459d",
         gray: {
-          100: "rgba(175, 175, 175, 1)",
+          100: "#cdcdcd",
           500: "rgba(54, 57, 66, 1)"
+        },
+        white: {
+          100: 'rgba(254, 255, 255, 1)'
         }
       },
       fontFamily: {
