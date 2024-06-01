@@ -15,10 +15,6 @@ const TaskCard = ({ item }: { item: { title: string; task: string } }) => {
    </View>
    <View>
     <View>
-     <View className='flex-row justify-between items-center'>
-      <Text className='font-oregular text-lg'>Progress</Text>
-      <Text className='font-omedium text-primary text-lg'>70%</Text>
-     </View>
      <AvatarGroup
       avatars={[
        "https://firebasestorage.googleapis.com/v0/b/my-brand-frontend.appspot.com/o/blogsImg%2FGemini_Generated_Image_pjmuutpjmuutpjmu.jpeg?alt=media&token=6df0d64d-a753-417a-a8d1-d0527f6e781c",
@@ -29,6 +25,10 @@ const TaskCard = ({ item }: { item: { title: string; task: string } }) => {
       size={30}
       spacing={-9}
      />
+     <View className='flex-row justify-between items-center'>
+      <Text className='font-oregular text-lg'>Progress</Text>
+      <Text className='font-omedium text-primary text-lg'>70%</Text>
+     </View>
      <Progress.Bar
       progress={0.7}
       width={200}
