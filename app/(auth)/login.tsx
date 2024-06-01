@@ -31,7 +31,7 @@ const Login = () => {
       title='Confirm'
       containerStyles='bg-primary mb- w-full rounded-[32px] h-[70px]'
       handlePress={() => router.replace("/home")}
-      textStyles='text-white'
+      textStyles='text-white-100'
      />
     </View>
    </SafeAreaView>
