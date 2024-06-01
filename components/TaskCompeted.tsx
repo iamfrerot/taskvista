@@ -23,7 +23,7 @@ const TaskCompeted = ({ value }: { value: number }) => {
    </View>
    <View className='flex-row gap-x-2 items-center bg-primary py-3 px-3 rounded-3xl'>
     <Ionicons name='calendar' color='white' size={22} />
-    <Text className='font-semibold text-white'>Mar 22</Text>
+    <Text className='font-semibold text-white-100'>Mar 22</Text>
    </View>
   </View>
  );
