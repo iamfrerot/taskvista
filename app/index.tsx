@@ -25,12 +25,7 @@ export default function App() {
               containerStyles="bg-primary w-[90%]"
               textStyles="text-white text-xl"
             />
-            <CustomButton
-              title={"Sign Up"}
-              handlePress={() => router.push("/sign-up")}
-              containerStyles="bg-white border border-primary w-[90%] mt-7"
-              textStyles="text-primary text-xl"
-            />
+            
           </View>
         </View>
       </SafeAreaView>
