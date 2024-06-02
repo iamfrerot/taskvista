@@ -21,17 +21,16 @@ export default function App() {
           <View className="w-full items-center">
             <CustomButton
               title={"Login"}
-              handlePress={() => router.push("/login")}
+              handlePress={() => router.push("(auth)/login")}
               containerStyles="bg-primary w-[90%]"
               textStyles="text-white text-xl"
             />
             <CustomButton
               title={"Forgot Password"}
-              handlePress={() => router.push("/forgotPassword")}
+              handlePress={() => router.push("(auth)/forgotPassword")}
               containerStyles="bg-secondary w-[90%] mt-4"
               textStyles="text-white text-xl"
             />
-            
           </View>
         </View>
       </SafeAreaView>
