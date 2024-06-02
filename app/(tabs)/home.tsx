@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ProfileHome from "../../components/ProfileHome";
 import { icons } from "../../constants";
@@ -6,11 +6,12 @@ import { Ionicons } from "@expo/vector-icons";
 import TaskCompeted from "../../components/TaskCompeted";
 import CalendarHome from "../../components/CalendarHome";
 import TaskHome from "../../components/TaskHome";
+import ProjectHome from "../../components/ProjectHome";
 const home = () => {
  return (
   <SafeAreaView>
-   <View>
-    <View className='flex-row justify-between items-center px-4'>
+   <View className='pb-[140px] '>
+    <View className='flex-row justify-between items-center px-4 py-4'>
      <ProfileHome
       img='https://firebasestorage.googleapis.com/v0/b/my-brand-frontend.appspot.com/o/blogsImg%2Fslaye.jpg?alt=media&token=720bbb43-f824-4786-963a-d383ff72d4e6'
       name='Frerot'
@@ -23,9 +24,12 @@ const home = () => {
       )}
      </TouchableOpacity>
     </View>
-    <TaskCompeted value={90} />
-    <CalendarHome />
-    <TaskHome />
+    <ScrollView showsVerticalScrollIndicator={false}>
+     <TaskCompeted value={90} />
+     <CalendarHome />
+     <TaskHome />
+     <ProjectHome />
+    </ScrollView>
    </View>
   </SafeAreaView>
  );
