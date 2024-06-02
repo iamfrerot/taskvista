@@ -27,7 +27,7 @@ interface ChatRoomScreenProps {
   };
 }
 
-const ChatRoomScreen: React.FC<ChatRoomScreenProps> = ({ route }) => {
+const GroupChatRoomScreen: React.FC<ChatRoomScreenProps> = ({ route }) => {
   const router = useRouter();
   //set const data to hold the user object
   const [user, setUser] = useState<{ name: string; profileImage: any } | null>(null);
@@ -168,4 +168,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChatRoomScreen;
+export default GroupChatRoomScreen;

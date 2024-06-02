@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, FlatList, Image, Text, StyleSheet, ListRenderItem } from 'react-native';
+import { View, FlatList, Image, Text, StyleSheet, ListRenderItem, TouchableOpacity, Button } from 'react-native';
 import { groupData } from '../../constants/data';
 import { ImageSourcePropType } from 'react-native';
+import { useRouter } from 'expo-router';
 
 interface GroupItem {
   id: number;
@@ -11,23 +12,30 @@ interface GroupItem {
 }
 
 const GroupListScreen = () => {
+  const router = useRouter();
+
   const renderItem: ListRenderItem<GroupItem> = ({ item }) => (
-    <View style={styles.groupItem}>
-      <Image source={item.groupImage} style={styles.groupImage} />
-      <View style={styles.textContainer}>
-        <Text style={styles.groupName}>{item.groupName}</Text>
-        <Text style={styles.time}>{item.time}</Text>
+    <TouchableOpacity onPress={() => router.push({ pathname: '/GroupChatRoomScreen', params: { group: JSON.stringify(item) } })}>
+      <View style={styles.groupItem}>
+        <Image source={item.groupImage} style={styles.groupImage} />
+        <View style={styles.textContainer}>
+          <Text style={styles.groupName}>{item.groupName}</Text>
+          <Text style={styles.time}>{item.time}</Text>
+        </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
-    <FlatList
-      data={groupData}
-      renderItem={renderItem}
-      keyExtractor={item => item.id.toString()}
-      style={styles.container}
-    />
+    <View style={styles.container}>
+      <FlatList
+        data={groupData}
+        renderItem={renderItem}
+        keyExtractor={item => item.id.toString()}
+        style={styles.list}
+      />
+      <Button title="Create Group" onPress={() => router.push('/SelectUserScreen')} />
+    </View>
   );
 };
 
@@ -36,9 +44,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  list: {
+    paddingVertical: 10,
+  },
   groupItem: {
     flexDirection: 'row',
-    padding: 15,
+    alignItems: 'center',
+    padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
   },
@@ -46,10 +58,10 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
+    marginRight: 10,
   },
   textContainer: {
     flex: 1,
-    marginLeft: 10,
   },
   groupName: {
     fontWeight: 'bold',

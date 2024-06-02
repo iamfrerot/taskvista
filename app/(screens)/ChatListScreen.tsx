@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, FlatList, Image, Text, StyleSheet, ListRenderItem, TouchableOpacity } from 'react-native';
+import { View, FlatList, Image, Text, StyleSheet, ListRenderItem, TouchableOpacity, Button } from 'react-native';
 import { chatData } from '../../constants/data';
 import { ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -14,9 +14,13 @@ interface ChatItem {
 
 const ChatListScreen = () => {
   const router = useRouter();
+  
 
-  const renderItem: ListRenderItem<ChatItem> = ({ item }) => (
-    <TouchableOpacity onPress={() => router.push({ pathname: '/', params: { user: JSON.stringify(item) } })}>
+  const renderItem: ListRenderItem<ChatItem> = ({ item, index }) => (
+    <TouchableOpacity onPress={() => {
+      console.log("Navigating to ChatRoomScreen with user:", item);
+      router.push({ pathname: '/ChatRoomScreen', params: { user: JSON.stringify(item) } });
+    }}>
       <View style={styles.chatItem}>
         <Image source={item.profileImage} style={styles.profileImage} />
         <View style={styles.textContainer}>
@@ -27,14 +31,17 @@ const ChatListScreen = () => {
       </View>
     </TouchableOpacity>
   );
-
+  
   return (
-    <FlatList
-      data={chatData}
-      renderItem={renderItem}
-      keyExtractor={item => item.id.toString()}
-      style={styles.container}
-    />
+    <View style={styles.container}>
+      <FlatList
+        data={chatData}
+        renderItem={renderItem}
+        keyExtractor={item => item.id.toString()}
+        style={styles.list}
+      />
+      <Button title="New Chat" onPress={() => router.push('/SelectUserScreen')} />
+    </View>
   );
 };
 
@@ -43,9 +50,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  list: {
+    paddingVertical: 10,
+  },
   chatItem: {
     flexDirection: 'row',
-    padding: 15,
+    alignItems: 'center',
+    padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
   },
@@ -53,10 +64,10 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
+    marginRight: 10,
   },
   textContainer: {
     flex: 1,
-    marginLeft: 10,
   },
   name: {
     fontWeight: 'bold',
