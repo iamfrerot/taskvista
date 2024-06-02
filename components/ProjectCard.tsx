@@ -1,31 +1,26 @@
 import { View, Text } from "react-native";
 import AvatarGroup from "./AvatarGroup";
 import CircularProgress from "react-native-circular-progress-indicator";
-const ProjectCard = ({ item }: { item: { title: string; task: string } }) => {
+import { ProjectProp } from "./ProjectHome";
+
+const ProjectCard = ({ item }: { item: ProjectProp }) => {
  return (
   <View className='bg-white-100 px-3 py-4 rounded-xl min-h-[120px] min-w-[350px] mr-3 flex-row justify-between'>
    <View>
     <View>
-     <Text className='font-osemibold text-lg max-w-[190px]'>{item.title}</Text>
+     <Text className='font-osemibold text-lg max-w-[190px]'>{item.name}</Text>
      <View className='flex-row items-center justify-between'>
-      <Text className='text-gray-100 max-w-[170px] text-sm'>{item.task}</Text>
+      <Text className='text-gray-100 max-w-[170px] text-sm'>
+       {item.description}
+      </Text>
      </View>
     </View>
     <View>
-     <AvatarGroup
-      avatars={[
-       "https://firebasestorage.googleapis.com/v0/b/my-brand-frontend.appspot.com/o/blogsImg%2FGemini_Generated_Image_pjmuutpjmuutpjmu.jpeg?alt=media&token=6df0d64d-a753-417a-a8d1-d0527f6e781c",
-       "https://firebasestorage.googleapis.com/v0/b/my-brand-frontend.appspot.com/o/blogsImg%2FGemini_Generated_Image_pjmuutpjmuutpjmu.jpeg?alt=media&token=6df0d64d-a753-417a-a8d1-d0527f6e781c",
-       "https://firebasestorage.googleapis.com/v0/b/my-brand-frontend.appspot.com/o/blogsImg%2FGemini_Generated_Image_pjmuutpjmuutpjmu.jpeg?alt=media&token=6df0d64d-a753-417a-a8d1-d0527f6e781c",
-       "https://firebasestorage.googleapis.com/v0/b/my-brand-frontend.appspot.com/o/blogsImg%2FGemini_Generated_Image_pjmuutpjmuutpjmu.jpeg?alt=media&token=6df0d64d-a753-417a-a8d1-d0527f6e781c",
-      ]}
-      size={30}
-      spacing={-9}
-     />
+     <AvatarGroup avatars={[item.image]} size={30} spacing={-9} />
     </View>
    </View>
    <CircularProgress
-    value={75}
+    value={item.completion}
     progressValueColor='black'
     radius={40}
     initialValue={0}

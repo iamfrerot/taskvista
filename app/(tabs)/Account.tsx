@@ -1,6 +1,8 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
-
+import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 // Mock user data for demonstration
 const userData = {
  id: 1,
@@ -10,13 +12,13 @@ const userData = {
 };
 
 const Account = () => {
- const handleLogout = () => {
-  // Handle logout logic
-  console.log("Logged out");
+ const handleLogout = async () => {
+  await AsyncStorage.removeItem("token");
+  router.replace("/");
  };
 
  return (
-  <View style={styles.container}>
+  <SafeAreaView style={styles.container}>
    <View style={styles.profileSection}>
     <Image source={userData.profileImage} style={styles.profileImage} />
     <Text style={styles.name}>{userData.name}</Text>
@@ -40,7 +42,7 @@ const Account = () => {
      <Text style={styles.optionText}>Logout</Text>
     </TouchableOpacity>
    </View>
-  </View>
+  </SafeAreaView>
  );
 };
 
