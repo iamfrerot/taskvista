@@ -93,13 +93,13 @@ const TabsLayout = () => {
      }}
     />
     <Tabs.Screen
-     name='todolist'
+     name='TodoList'
      options={{
       headerShown: false,
       title: "TodoList",
       tabBarIcon: ({ color, focused }) => (
        <TabIcon
-        icon={focused ? icons.searchfocus : icons.search}
+       icon={focused ? icons.tasksfocus : icons.tasks}
         color={color}
         focused={focused}
         name='TodoList'
@@ -108,7 +108,7 @@ const TabsLayout = () => {
      }}
     />
     <Tabs.Screen
-     name='account'
+     name='Account'
      options={{
       headerShown: false,
       title: "Account",
