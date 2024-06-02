@@ -14,7 +14,7 @@ const CalendarDay = ({
     date === item.date ? "bg-primary h-[160px]" : ""
    }`}
   >
-   <Text className='font-obold text-2xl text-white-100'>{item.date}</Text>
+   <Text className='font-obold text-2xl text-white'>{item.date}</Text>
    <Text className='font-omedium text-lg text-white-100'>{item.day}</Text>
   </View>
  );

@@ -1,51 +1,48 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { useTodo } from '../../Context/TodoContext';
-import { useRouter } from 'expo-router';
+import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import axios from 'axios';
 
 const AddTodoScreen = () => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [deadline, setDeadline] = useState('');
-  const { addTodo } = useTodo();
-  const router = useRouter();
+  const [newTodoTitle, setNewTodoTitle] = useState<string>('');
+  const [newTodoDescription, setNewTodoDescription] = useState<string>('');
+  const [newTodoDeadline, setNewTodoDeadline] = useState<string>('');
 
-  const handleAddTodo = () => {
-    const newTodo = {
-      id: Math.random(),
-      title,
-      description,
-      deadline,
-      completed: false,
-    };
-    addTodo(newTodo);
-    router.back();
+  const handleAddTodo = async () => {
+    try {
+      const response = await axios.post('https://pmt-server-x700.onrender.com/api/v1/todo/create', {
+        title: newTodoTitle,
+        description: newTodoDescription,
+        deadline: newTodoDeadline
+      });
+      console.log('New todo added:', response.data.todo);
+      // You can navigate back to the previous screen or perform any other action here
+    } catch (error) {
+      console.error('Error adding todo:', error);
+    }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Add New To-Do</Text>
       <TextInput
-        value={title}
-        onChangeText={setTitle}
+        style={styles.input}
         placeholder="Title"
-        style={styles.input}
+        value={newTodoTitle}
+        onChangeText={text => setNewTodoTitle(text)}
       />
       <TextInput
-        value={description}
-        onChangeText={setDescription}
+        style={styles.input}
         placeholder="Description"
-        style={styles.input}
+        value={newTodoDescription}
+        onChangeText={text => setNewTodoDescription(text)}
       />
       <TextInput
-        value={deadline}
-        onChangeText={setDeadline}
-        placeholder="Deadline"
         style={styles.input}
+        placeholder="Deadline"
+        value={newTodoDeadline}
+        onChangeText={text => setNewTodoDeadline(text)}
       />
-      <TouchableOpacity onPress={handleAddTodo} style={styles.addButton}>
-        <Text style={styles.addButtonText}>Add To-Do</Text>
-      </TouchableOpacity>
+      <Button title="Add Todo" onPress={handleAddTodo} />
     </View>
   );
 };
@@ -62,21 +59,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    padding: 10,
+    height: 40,
+    borderColor: 'gray',
     borderWidth: 1,
-    borderColor: '#ccc',
     borderRadius: 5,
-    marginBottom: 20,
-  },
-  addButton: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 18,
+    marginBottom: 10,
+    paddingHorizontal: 10,
   },
 });
 
