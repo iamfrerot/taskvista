@@ -26,8 +26,8 @@ export default function App() {
               textStyles="text-white text-xl"
             />
             <CustomButton
-              title={"Forgot Password"}
-              handlePress={() => router.push("(auth)/forgotPassword")}
+              title={"First time Login"}
+              handlePress={() => router.push("(auth)/firsttimelogin")}
               containerStyles="bg-secondary w-[90%] mt-4"
               textStyles="text-white text-xl"
             />
