@@ -10,7 +10,7 @@ module.exports = {
           500: "rgba(54, 57, 66, 1)"
         },
         white: {
-          100: 'rgba(254, 255, 255, 1)'
+          100: "#ffff"
         }
       },
       fontFamily: {
