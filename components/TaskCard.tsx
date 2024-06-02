@@ -5,7 +5,7 @@ import AvatarGroup from "./AvatarGroup";
 
 const TaskCard = ({ item }: { item: { title: string; task: string } }) => {
  return (
-  <View className='bg-white-100 px-2 py-4 rounded-xl min-h-[120px] mr-3'>
+  <View className='bg-white-100 px-2 py-4 rounded-xl min-h-[120px] mr-3 mb-3'>
    <Text className='font-osemibold text-xl'>{item.title}</Text>
    <View className='flex-row items-center justify-between'>
     <Text className='text-gray-100 max-w-[170px] text-sm'>{item.task}</Text>
