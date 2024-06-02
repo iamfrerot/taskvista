@@ -26,6 +26,8 @@ const TabIcon = ({ icon, color, name, focused }: TabiconProps) => {
   </View>
  );
 };
+
+
 const TabsLayout = () => {
  return (
   <>
