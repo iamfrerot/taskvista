@@ -14,7 +14,7 @@ interface Developer {
  updatedAt: string;
  __v: number;
 }
-const UserDropdown = ({
+const GetProjectDown = ({
  multi,
  handleAssigned,
 }: {
@@ -42,7 +42,13 @@ const UserDropdown = ({
   const fetchDevelopers = async () => {
    try {
     const response = await fetch(
-     "https://pmt-server-x700.onrender.com/api/v1/auth/get-all-developers"
+     "https://pmt-server-x700.onrender.com/api/v1/projects/view",
+     {
+      headers: {
+       Authorization:
+        "Bearear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjQ0ZTU2YzFkODk5NzhjMjdmZDJhNTgiLCJlbWFpbCI6InBtdGFkbWluQGdtYWlsLmNvbSIsInBob25lIjoiMDc4ODIzMzU2MCIsImZ1bGxOYW1lcyI6IktldmluZSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTcxNzM1ODc2Mn0.zNKjtG2SxKWIR9HPkolgy8ltNCC4wrTvHpf7eKNjVLc",
+      },
+     }
     );
     const data = await response.json();
     const developerOptions = data.data.map((developer: Developer) => ({
@@ -86,4 +92,4 @@ const UserDropdown = ({
  );
 };
 
-export default UserDropdown;
+export default GetProjectDown;
