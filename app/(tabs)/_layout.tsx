@@ -99,7 +99,7 @@ const TabsLayout = () => {
       title: "TodoList",
       tabBarIcon: ({ color, focused }) => (
        <TabIcon
-       icon={focused ? icons.tasksfocus : icons.tasks}
+        icon={focused ? icons.todofocus : icons.todo}
         color={color}
         focused={focused}
         name='TodoList'

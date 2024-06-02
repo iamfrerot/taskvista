@@ -11,6 +11,8 @@ import accountfocus from "../assets/images/accountfocus.png";
 import arrowleft from "../assets/images/arrowleft.png";
 import notification from "../assets/images/notification.png";
 import twodots from "../assets/images/twodots.png";
+import todo from "../assets/images/todo.png";
+import todofocus from "../assets/images/todofocus.png";
 export default {
  account,
  accountfocus,
@@ -25,4 +27,6 @@ export default {
  arrowleft,
  notification,
  twodots,
+ todo,
+ todofocus,
 };
