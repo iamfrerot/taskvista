@@ -77,8 +77,8 @@ const GroupChatRoomScreen: React.FC<ChatRoomScreenProps> = ({ route }) => {
         <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 10 }}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
-        {user && <Image source={user.profileImage} style={styles.profileImage} />}
-        {user && <Text style={styles.userName}>{user.name}</Text>}
+        {user1 && <Image source={user1.profileImage} style={styles.profileImage} />}
+        {user1 && <Text style={styles.userName}>{user1.name}</Text>}
       </View>
       <FlatList
         data={messages}
