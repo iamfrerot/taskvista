@@ -1,5 +1,12 @@
-import React, { useEffect } from "react";
-import { View, Text, TextInput, Alert, ScrollView } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+ View,
+ Text,
+ TextInput,
+ Alert,
+ ScrollView,
+ ActivityIndicator,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import CustomButton from "../../components/CustomButton";
@@ -16,6 +23,7 @@ interface LoginFormValues {
 }
 
 const Login = () => {
+ const [isLoading, setIsLoading] = useState(false);
  const loginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
   password: Yup.string().required("Password is required"),
@@ -26,52 +34,73 @@ const Login = () => {
   { setSubmitting }: FormikHelpers<LoginFormValues>
  ) => {
   try {
+   setIsLoading(true);
    console.log("Submitting values:", values);
    const response = await axios.post(
     "https://pmt-server-x700.onrender.com/api/v1/auth/login",
     values
    );
    console.log("API response:", response.data);
-
+   if (response.status !== 200) setIsLoading(false);
    if (response.status === 200) {
     if (response.data.data.accessToken) {
      // Check if accessToken is available
      // Save the token in AsyncStorage
      await AsyncStorage.setItem("token", response.data.data.accessToken);
+     await AsyncStorage.setItem(
+      "user",
+      JSON.stringify(response.data.data.user)
+     );
      Alert.alert("Success", "Login successful");
      router.replace("/home");
     } else {
+     setIsLoading(false);
      Alert.alert("Login Failed", "Token not received");
     }
    } else {
+    setIsLoading(false);
     Alert.alert("Login Failed", response.data.message || "Unknown error");
    }
   } catch (error) {
+   setIsLoading(false);
    console.error("Error logging in:", error);
    if (axios.isAxiosError(error)) {
+    setIsLoading(false);
     Alert.alert(
      "Login Failed",
      error.response?.data?.message || "An error occurred"
     );
    } else {
+    setIsLoading(false);
     Alert.alert("Login Failed", "An unexpected error occurred");
    }
   } finally {
    setSubmitting(false);
+   setIsLoading(false);
   }
  };
 
  useEffect(() => {
   const checkToken = async () => {
+   setIsLoading(true);
    const token = await AsyncStorage.getItem("token");
    if (token) {
+    setIsLoading(false);
     router.replace("/home");
+   } else {
+    setIsLoading(false);
    }
   };
 
   checkToken();
  }, []);
 
+ if (isLoading)
+  return (
+   <SafeAreaView className='items-center justify-center h-full bg-gray-100'>
+    <ActivityIndicator color='darkblue' size='large' />
+   </SafeAreaView>
+  );
  return (
   <View className='h-full w-full bg-white'>
    <SafeAreaView className='flex-1 justify-center items-center px-4'>

@@ -8,15 +8,23 @@ import CalendarHome from "../../components/CalendarHome";
 import TaskHome from "../../components/TaskHome";
 import ProjectHome from "../../components/ProjectHome";
 import { router } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const home = () => {
+ const getuser = async () => {
+  const userId = await AsyncStorage.getItem("user");
+  console.log(userId);
+ };
  return (
   <SafeAreaView>
    <View className='pb-[140px]'>
     <View className='flex-row justify-between items-center px-4 py-4'>
-     <ProfileHome
-      img='https://firebasestorage.googleapis.com/v0/b/my-brand-frontend.appspot.com/o/blogsImg%2Fslaye.jpg?alt=media&token=720bbb43-f824-4786-963a-d383ff72d4e6'
-      name='Frerot'
-     />
+     <TouchableOpacity onPress={getuser}>
+      <ProfileHome
+       img='https://firebasestorage.googleapis.com/v0/b/my-brand-frontend.appspot.com/o/blogsImg%2Fslaye.jpg?alt=media&token=720bbb43-f824-4786-963a-d383ff72d4e6'
+       name='Frerot'
+      />
+     </TouchableOpacity>
+
      <TouchableOpacity className='p-3 border border-gray-300 rounded-full items-center justify-center '>
       {false ? (
        <Ionicons name='mail-unread' size={23} color='green' />
