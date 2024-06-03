@@ -2,23 +2,33 @@ import { StatusBar } from "expo-status-bar";
 import { View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../constants";
-import { Image } from "react-native";
+import { Image, ActivityIndicator } from "react-native";
 import CustomButton from "../components/CustomButton";
 import { router } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function App() {
+ const [isLoading, setIsLoading] = useState(false);
  useEffect(() => {
+  setIsLoading(true);
   const checkToken = async () => {
    const token = await AsyncStorage.getItem("token");
    if (token) {
     router.replace("/home");
+   } else {
+    setIsLoading(false);
    }
   };
 
   checkToken();
  }, []);
+ if (isLoading)
+  return (
+   <SafeAreaView className='items-center justify-center h-full bg-gray-100'>
+    <ActivityIndicator color='darkblue' size='large' />
+   </SafeAreaView>
+  );
  return (
   <View className='h-full w-full'>
    <SafeAreaView>

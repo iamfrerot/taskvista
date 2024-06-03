@@ -79,6 +79,7 @@ const createproject = () => {
    deadline: form.deadline,
    category: form.category,
    teamLead: form.teamLead,
+   status: form.status,
   };
 
   setIsLoading(true);

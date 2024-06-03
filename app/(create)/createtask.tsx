@@ -4,10 +4,11 @@ import {
  ScrollView,
  TouchableOpacity,
  Image,
- FlatList,
+ ActivityIndicator,
+ Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import * as DocumentPicker from "expo-document-picker";
 import { router } from "expo-router";
 import FormField from "../../components/FormField";
@@ -16,35 +17,38 @@ import { icons } from "../../constants";
 import { Ionicons } from "@expo/vector-icons";
 import UserDropdown from "../../components/UserDropDown";
 import CustomButton from "../../components/CustomButton";
-import alldevs from "../../helper/getallDeveloper";
 import DropDownPicker from "react-native-dropdown-picker";
+import GetProjectDown from "../../components/GetProjectDown";
 const createtask = () => {
  const [form, setForm] = useState<{
   name: string;
-  documents: null | any;
+  document: null | any;
   startdate: Date;
   deadline: Date;
   enddate: Date;
   status: string;
   priority: string;
-  taskdescription: string;
-  assignedto: string[];
+  description: string;
+  developers: string[];
+  project: string;
  }>({
   name: "",
-  documents: null,
+  document: null,
   startdate: new Date(),
   enddate: new Date(),
   deadline: new Date(),
   status: "",
   priority: "Normal",
-  taskdescription: "",
-  assignedto: [],
+  description: "",
+  developers: [],
+  project: "",
  });
  const [open, setOpen] = useState(false);
+ const [isLoading, setIsLoading] = useState(false);
  const filesPicker = async () => {
   const result = await DocumentPicker.getDocumentAsync();
   if (!result.canceled) {
-   setForm({ ...form, documents: result.assets });
+   setForm({ ...form, document: result.assets });
   }
  };
  const renderItem = ({ item }: { item: any }) => (
@@ -53,10 +57,49 @@ const createtask = () => {
   </View>
  );
  const handleAssigned = (arr: any) => {
-  setForm({ ...form, assignedto: arr });
+  setForm({ ...form, developers: arr });
  };
- console.log(form);
-
+ const handleSubmit = async () => {
+  setIsLoading(true);
+  const data = {
+   name: form.name,
+   project: form.project,
+   description: form.description,
+   developers: form.developers,
+   deadline: form.deadline,
+   priority: form.priority,
+   endDate: form.enddate,
+   startDate: form.startdate,
+  };
+  console.log(data);
+  try {
+   const result = await fetch(
+    "https://pmt-server-x700.onrender.com/api/v1/tasks/create",
+    {
+     method: "POST",
+     headers: {
+      Authorization:
+       "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjQ0ZTU2YzFkODk5NzhjMjdmZDJhNTgiLCJlbWFpbCI6InBtdGFkbWluQGdtYWlsLmNvbSIsInBob25lIjoiMDc4ODIzMzU2MCIsImZ1bGxOYW1lcyI6IktldmluZSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTcxNzM1ODc2Mn0.zNKjtG2SxKWIR9HPkolgy8ltNCC4wrTvHpf7eKNjVLc",
+      "Content-Type": "application/json",
+     },
+     body: JSON.stringify(data),
+    }
+   );
+   if (result.status === 201) {
+    router.back();
+    setIsLoading(false);
+   }
+  } catch (error) {
+   setIsLoading(false);
+   Alert.alert("Erroring Creating Task", error as string);
+  }
+ };
+ if (isLoading)
+  return (
+   <SafeAreaView className='items-center justify-center h-full bg-gray-100'>
+    <ActivityIndicator color='darkblue' size='large' />
+   </SafeAreaView>
+  );
  return (
   <SafeAreaView>
    <View className='pb-5 px-4 items-center flex-row justify-between '>
@@ -80,18 +123,18 @@ const createtask = () => {
     <FormField
      textarea={true}
      title='Task Description'
-     value={form.taskdescription}
+     value={form.description}
      placeholder='About this Task'
-     handleChangeText={(e: string) => setForm({ ...form, taskdescription: e })}
+     handleChangeText={(e: string) => setForm({ ...form, description: e })}
      titleStyles='text-base'
     />
     <View className='space-y-2'>
      <Text className='text-base text-black font-omedium'>Upload File</Text>
      <TouchableOpacity onPress={() => filesPicker()}>
-      {form.documents ? (
+      {form.document ? (
        <View className='bg-primary h-12 mr-3 items-center justify-center rounded-md px-3 '>
         <Text className='font-osemibold text-white-100'>
-         {form.documents[0].name}
+         {form.document[0].name}
         </Text>
        </View>
       ) : (
@@ -176,9 +219,18 @@ const createtask = () => {
      <Text className='font-omedium text-base mb-3'>For:</Text>
      <UserDropdown handleAssigned={handleAssigned} multi={true} />
     </View>
+    <View>
+     <Text className='font-omedium text-base mb-3'>in:</Text>
+     <GetProjectDown
+      handleAssigned={(e: string) => {
+       setForm({ ...form, project: e });
+      }}
+      multi={false}
+     />
+    </View>
     <CustomButton
      title='Create'
-     handlePress={() => console.log("")}
+     handlePress={handleSubmit}
      textStyles='font-osemibold text-white-100'
      containerStyles='w-full h-12 mt-5 mb-14 bg-primary'
     />
