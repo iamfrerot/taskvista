@@ -1,9 +1,26 @@
 import { View, Text, FlatList } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import TaskCard from "./TaskCard";
 import { Link } from "expo-router";
-
+import { useEffect } from "react";
 const TaskHome = () => {
+ const [task, setTasks] = useState();
+ useEffect(() => {
+  const getTasks = async () => {
+   const res = await fetch(
+    "https://pmt-server-x700.onrender.com/api/v1/tasks/view",
+    {
+     headers: {
+      Authorization:
+       "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjQ0ZTU2YzFkODk5NzhjMjdmZDJhNTgiLCJlbWFpbCI6InBtdGFkbWluQGdtYWlsLmNvbSIsInBob25lIjoiMDc4ODIzMzU2MCIsImZ1bGxOYW1lcyI6IktldmluZSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTcxNzM1ODc2Mn0.zNKjtG2SxKWIR9HPkolgy8ltNCC4wrTvHpf7eKNjVLc",
+     },
+    }
+   );
+   const json = await res.json();
+   setTasks(json.data.data);
+  };
+  getTasks();
+ }, []);
  return (
   <View className=' mt-3'>
    <View className='flex-row items-center justify-between px-2 mb-5 '>
@@ -13,25 +30,12 @@ const TaskHome = () => {
     </Link>
    </View>
    <FlatList
-    className='pl-4'
-    data={[
-     {
-      id: "1",
-      title: "Medical LP",
-      task: "Make A landing Page and mobile app.",
-     },
-     {
-      id: "2",
-      title: "Medical LP",
-      task: "Make A landing Page and mobile app.",
-     },
-     {
-      id: "3",
-      title: "Medical LP",
-      task: "Make A landing Page and mobile app.",
-     },
-    ]}
-    renderItem={({ item }) => <TaskCard item={item} />}
+    data={task}
+    renderItem={({ item }) => (
+     <View className='ml-3'>
+      <TaskCard item={item} />
+     </View>
+    )}
     horizontal
     showsHorizontalScrollIndicator={false}
    />

@@ -21,7 +21,7 @@ const AvatarGroup = ({
      containerStyle={{
       marginRight: spacing,
       marginLeft: spacing,
-      borderColor: "white",
+      borderColor: "#19459d",
       borderWidth: 1,
      }}
     />

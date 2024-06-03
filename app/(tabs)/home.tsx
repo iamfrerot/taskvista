@@ -9,22 +9,29 @@ import TaskHome from "../../components/TaskHome";
 import ProjectHome from "../../components/ProjectHome";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
 const home = () => {
+ const [user, setUser] = useState<{
+  _id: string;
+  email: string;
+  phone: number;
+  fullNames: string;
+  role: string;
+  profile: string;
+ }>();
  const getuser = async () => {
-  const userId = await AsyncStorage.getItem("user");
-  console.log(userId);
+  const userData = (await AsyncStorage.getItem("user")) as string;
+  const user = JSON.parse(userData);
+  setUser(user);
  };
+ useEffect(() => {
+  getuser();
+ }, []);
  return (
   <SafeAreaView>
    <View className='pb-[140px]'>
     <View className='flex-row justify-between items-center px-4 py-4'>
-     <TouchableOpacity onPress={getuser}>
-      <ProfileHome
-       img='https://firebasestorage.googleapis.com/v0/b/my-brand-frontend.appspot.com/o/blogsImg%2Fslaye.jpg?alt=media&token=720bbb43-f824-4786-963a-d383ff72d4e6'
-       name='Frerot'
-      />
-     </TouchableOpacity>
-
+     <ProfileHome img={`${user?.profile}`} name={`${user?.fullNames}`} />
      <TouchableOpacity className='p-3 border border-gray-300 rounded-full items-center justify-center '>
       {false ? (
        <Ionicons name='mail-unread' size={23} color='green' />

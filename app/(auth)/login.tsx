@@ -51,7 +51,6 @@ const Login = () => {
       "user",
       JSON.stringify(response.data.data.user)
      );
-     Alert.alert("Success", "Login successful");
      router.replace("/home");
     } else {
      setIsLoading(false);

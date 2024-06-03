@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useState, useEffect } from "react";
 // Mock user data for demonstration
 const userData = {
  id: 1,
@@ -12,6 +13,22 @@ const userData = {
 };
 
 const Account = () => {
+ const [user, setUser] = useState<{
+  _id: string;
+  email: string;
+  phone: number;
+  fullNames: string;
+  role: string;
+  profile: string;
+ }>();
+ const getuser = async () => {
+  const userData = (await AsyncStorage.getItem("user")) as string;
+  const user = JSON.parse(userData);
+  setUser(user);
+ };
+ useEffect(() => {
+  getuser();
+ }, []);
  const handleLogout = async () => {
   await AsyncStorage.removeItem("token");
   router.replace("/");
@@ -20,9 +37,9 @@ const Account = () => {
  return (
   <SafeAreaView style={styles.container}>
    <View style={styles.profileSection}>
-    <Image source={userData.profileImage} style={styles.profileImage} />
-    <Text style={styles.name}>{userData.name}</Text>
-    <Text style={styles.email}>{userData.email}</Text>
+    <Image source={{ uri: user?.profile }} style={styles.profileImage} />
+    <Text style={styles.name}>{user?.fullNames}</Text>
+    <Text style={styles.email}>{user?.email}</Text>
    </View>
 
    <View style={styles.settingsSection}>

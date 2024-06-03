@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { View, Image, Text, Alert } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
-interface Developer {
+interface Project {
  _id: string;
- email: string;
- fullNames: string;
+ category: string;
+ name: string;
  phone: string;
- profile: string;
- isVerified: boolean;
- role: string;
- passwordResetToken: string;
+ image: string;
+ descritiption: string;
+ notifications: boolean;
+ status: string;
  createdAt: string;
  updatedAt: string;
  __v: number;
@@ -39,7 +39,7 @@ const GetProjectDown = ({
  const [items, setItems] = useState([]);
 
  useEffect(() => {
-  const fetchDevelopers = async () => {
+  const fetchProjects = async () => {
    try {
     const response = await fetch(
      "https://pmt-server-x700.onrender.com/api/v1/projects/view",
@@ -51,21 +51,21 @@ const GetProjectDown = ({
      }
     );
     const data = await response.json();
-    const developerOptions = data.data.map((developer: Developer) => ({
+    const projectsOptions = data.data.data.map((project: Project) => ({
      label: renderUserItem({
-      name: developer.fullNames,
-      imageUri: developer.profile,
+      name: project.name,
+      imageUri: project.image,
      }),
-     value: developer._id,
+     value: project._id,
     }));
-    setItems(developerOptions);
+    setItems(projectsOptions);
    } catch (error) {
-    console.error("Error fetching developers:", error);
-    Alert.alert("Error Getting Developers", error as any);
+    console.error("Error fetching Projects:", error);
+    Alert.alert("Error Getting Projects", error as any);
    }
   };
   handleAssigned(value);
-  fetchDevelopers();
+  fetchProjects();
  }, [value]);
 
  return (
@@ -84,7 +84,7 @@ const GetProjectDown = ({
     paddingBottom: 13,
    }}
    dropDownDirection='TOP'
-   placeholder='Select Developer'
+   placeholder='Select Project'
    listMode='SCROLLVIEW'
    multiple={multi}
    mode='BADGE'
