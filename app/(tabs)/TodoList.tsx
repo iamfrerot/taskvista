@@ -6,7 +6,6 @@ import {
  StyleSheet,
  TouchableOpacity,
  TextInput,
- Button,
  Modal,
 } from "react-native";
 import axios from "axios";
@@ -19,6 +18,7 @@ import {
 } from "react-native-popup-menu";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 interface TodoItem {
  id: number;
  title: string;
@@ -35,6 +35,8 @@ const TodoList = () => {
   description: "",
   deadline: "",
  });
+
+ const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
  useEffect(() => {
   const fetchTodos = async () => {
@@ -53,35 +55,6 @@ const TodoList = () => {
 
   fetchTodos();
  }, []);
-
- const handleComplete = async (id: number) => {
-  try {
-   await axios.put(
-    `https://pmt-server-x700.onrender.com/api/v1/todo/update/${id}`,
-    {
-     completed: !todos.find((todo) => todo.id === id)?.completed,
-    }
-   );
-   setTodos((prevTodos) =>
-    prevTodos.map((todo) =>
-     todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    )
-   );
-  } catch (error) {
-   console.error("Error completing todo:", error);
-  }
- };
-
- const handleDelete = async (id: number) => {
-  try {
-   await axios.delete(
-    `https://pmt-server-x700.onrender.com/api/v1/todo/delete/${id}`
-   );
-   setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
-  } catch (error) {
-   console.error("Error deleting todo:", error);
-  }
- };
 
  const handleAddTodo = async () => {
   try {
@@ -110,23 +83,28 @@ const TodoList = () => {
    </View>
    <Menu>
     <MenuTrigger>
-     <Ionicons name='ellipsis-vertical' size={24} color='black' />
+     <Ionicons name="ellipsis-vertical" size={24} color="black" />
     </MenuTrigger>
     <MenuOptions>
-     <MenuOption onSelect={() => alert(`Viewing ${item.title}`)}>
-      <Text style={styles.menuOptionText}>View</Text>
-     </MenuOption>
-     <MenuOption onSelect={() => alert(`Editing ${item.title}`)}>
-      <Text style={styles.menuOptionText}>Edit</Text>
-     </MenuOption>
-     <MenuOption onSelect={() => handleComplete(item.id)}>
-      <Text style={styles.menuOptionText}>
-       {item.completed ? "Undo" : "Complete"}
-      </Text>
-     </MenuOption>
-     <MenuOption onSelect={() => alert(`Delete ${item.title}`)}>
-      <Text style={styles.menuOptionText}>Delete</Text>
-     </MenuOption>
+     {["View", "Edit", "Complete", "Delete"].map((option) => (
+      <MenuOption
+       key={option}
+       onSelect={() => alert(`${option} ${item.title}`)}
+       customStyles={{
+        optionWrapper: [
+         styles.menuOptionWrapper,
+         selectedOption === option && styles.selectedOption,
+        ],
+       }}
+      >
+       <TouchableOpacity
+        onPressIn={() => setSelectedOption(option)}
+        onPressOut={() => setSelectedOption(null)}
+       >
+        <Text style={styles.menuOptionText}>{option}</Text>
+       </TouchableOpacity>
+      </MenuOption>
+     ))}
     </MenuOptions>
    </Menu>
   </View>
@@ -140,7 +118,7 @@ const TodoList = () => {
       onPress={() => setIsModalVisible(false)}
       style={styles.backButton}
      >
-      <Ionicons name='arrow-back' size={24} color='black' />
+      <Ionicons name="arrow-back" size={24} color="black" />
      </TouchableOpacity>
      <Text style={styles.header}>To-Do List</Text>
      <TouchableOpacity
@@ -150,13 +128,13 @@ const TodoList = () => {
       ]}
       onPress={() => setIsModalVisible(true)}
      >
-      <Ionicons name='add' size={24} color='white' />
+      <Ionicons name="add" size={24} color="white" />
      </TouchableOpacity>
     </View>
     <Modal
      visible={isModalVisible}
      transparent={true}
-     animationType='slide'
+     animationType="slide"
      onRequestClose={() => setIsModalVisible(false)}
     >
      <View style={styles.modalContainer}>
@@ -164,19 +142,19 @@ const TodoList = () => {
        <Text style={styles.modalHeader}>Add To-Do</Text>
        <TextInput
         style={styles.input}
-        placeholder='Title'
+        placeholder="Title"
         value={newTodo.title}
         onChangeText={(text) => setNewTodo({ ...newTodo, title: text })}
        />
        <TextInput
         style={styles.input}
-        placeholder='Description'
+        placeholder="Description"
         value={newTodo.description}
         onChangeText={(text) => setNewTodo({ ...newTodo, description: text })}
        />
        <TextInput
         style={styles.input}
-        placeholder='Deadline (YYYY-MM-DD)'
+        placeholder="Deadline (YYYY-MM-DD)"
         value={newTodo.deadline}
         onChangeText={(text) => setNewTodo({ ...newTodo, deadline: text })}
        />
@@ -257,6 +235,12 @@ const styles = StyleSheet.create({
   padding: 10,
   fontSize: 16,
   color: "#000",
+ },
+ menuOptionWrapper: {
+  padding: 10,
+ },
+ selectedOption: {
+  backgroundColor: "#ddd",
  },
  addButton: {
   backgroundColor: "#007AFF",

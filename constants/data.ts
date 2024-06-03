@@ -27,6 +27,12 @@ export const ChatMessage: ChatData[] = [
     sender: 'Developer1',
     message: 'I have a quick question about the new feature.',
   },
+  {
+    id: 4,
+    profileImage: require('../assets/images/dev1.png'),
+    sender: 'Developer2',
+    message: 'Sure, what do you need help with?',
+   },
   // Add more chat data objects as needed
 ];
 
