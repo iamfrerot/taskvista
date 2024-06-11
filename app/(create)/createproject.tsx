@@ -4,7 +4,6 @@ import {
  ScrollView,
  TouchableOpacity,
  Image,
- FlatList,
  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -12,25 +11,26 @@ import React, { useState } from "react";
 import * as DocumentPicker from "expo-document-picker";
 import { router } from "expo-router";
 import FormField from "../../components/FormField";
-import DateTimepicker from "@react-native-community/datetimepicker";
 import { icons } from "../../constants";
 import { Ionicons } from "@expo/vector-icons";
 import UserDropdown from "../../components/UserDropDown";
 import CustomButton from "../../components/CustomButton";
 import DropDownPicker from "react-native-dropdown-picker";
 import * as ImagePicker from "expo-image-picker";
+import { Calendar } from "react-native-calendars";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const createproject = () => {
  interface formTypes {
   name: string;
   document: null | any;
   image: null | any;
-  startDate: Date;
-  endDate: Date;
+  startDate: string;
+  endDate: string;
   status: string;
   description: string;
   teamLead: string;
   category: string;
-  deadline: Date;
+  deadline: string;
   priority: string;
  }
  const [isLoading, setIsLoading] = useState(false);
@@ -38,13 +38,13 @@ const createproject = () => {
   name: "",
   document: null,
   image: null,
-  startDate: new Date(),
-  endDate: new Date(),
+  startDate: "",
+  endDate: "",
   status: "todo",
   description: "",
   teamLead: "",
   category: "",
-  deadline: new Date(),
+  deadline: "",
   priority: "Normal",
  });
  const filePicker = async () => {
@@ -66,6 +66,9 @@ const createproject = () => {
  };
  const [open, setOpen] = useState(false);
  const [open2, setOpen2] = useState(false);
+ const [showCalendar, setShowCalendar] = useState(false);
+ const [showCalendar2, setShowCalendar2] = useState(false);
+ const [showCalendar3, setShowCalendar3] = useState(false);
  const handleDeveloper = (value: any): void => {
   setForm({ ...form, teamLead: value });
  };
@@ -74,23 +77,22 @@ const createproject = () => {
    name: form.name,
    description: form.description,
    priority: form.priority,
-   startDate: form.startDate,
-   endDate: form.endDate,
-   deadline: form.deadline,
+   startDate: new Date(form.startDate),
+   endDate: new Date(form.endDate),
+   deadline: new Date(form.deadline),
    category: form.category,
    teamLead: form.teamLead,
    status: form.status,
   };
-
   setIsLoading(true);
+  const token = await AsyncStorage.getItem("token");
   try {
    const res = await fetch(
     "https://pmt-server-x700.onrender.com/api/v1/projects/create",
     {
      method: "POST",
      headers: {
-      Authorization:
-       "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjQ0ZTU2YzFkODk5NzhjMjdmZDJhNTgiLCJlbWFpbCI6InBtdGFkbWluQGdtYWlsLmNvbSIsInBob25lIjoiMDc4ODIzMzU2MCIsImZ1bGxOYW1lcyI6IktldmluZSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTcxNzM1ODc2Mn0.zNKjtG2SxKWIR9HPkolgy8ltNCC4wrTvHpf7eKNjVLc",
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
      },
      body: JSON.stringify(data),
@@ -101,25 +103,26 @@ const createproject = () => {
      name: "",
      document: null,
      image: null,
-     startDate: new Date(),
-     endDate: new Date(),
+     startDate: "",
+     endDate: "",
      status: "todo",
      description: "",
      teamLead: "",
      category: "",
-     deadline: new Date(),
+     deadline: "",
      priority: "Normal",
     });
-    router.back();
+    router.push("/home");
    }
   } catch (error) {
    console.log(error);
   }
  };
+
  if (isLoading)
   return (
-   <SafeAreaView className='items-center justify-center h-full bg-gray-100'>
-    <ActivityIndicator color='darkblue' size='large' />
+   <SafeAreaView className='items-center justify-center h-full bg-primary'>
+    <ActivityIndicator color='white' size='large' />
    </SafeAreaView>
   );
  return (
@@ -156,7 +159,7 @@ const createproject = () => {
     <FormField
      title='Project Name'
      value={form.name}
-     placeholder='Name Your Task'
+     placeholder='Name Your Project'
      titleStyles='text-base'
      handleChangeText={(e: string) => setForm({ ...form, name: e })}
     />
@@ -196,39 +199,101 @@ const createproject = () => {
       )}
      </TouchableOpacity>
     </View>
-
-    <View className='flex-row items-center justify-between '>
-     <Text className='font-omedium text-base'>Choose Starting Date:</Text>
-     <DateTimepicker
-      value={form.startDate}
-      mode='date'
-      display='default'
-      onChange={(e, selectedDate) =>
-       setForm({ ...form, startDate: selectedDate as Date })
-      }
-     />
+    <View>
+     <TouchableOpacity
+      onPress={() => setShowCalendar(true)}
+      className='bg-primary px-1 py-3 rounded-lg'
+     >
+      <Text className='font-omedium text-base text-center text-white-100 '>
+       {`${form.startDate || "Start Date"}`}
+      </Text>
+     </TouchableOpacity>
+     {showCalendar && (
+      <Calendar
+       onDayPress={({ dateString }) => {
+        setForm({
+         ...form,
+         startDate: dateString,
+        });
+        setShowCalendar(false);
+       }}
+       markedDates={{
+        [form.startDate]: {
+         selected: true,
+         marked: true,
+         selectedColor: "#19459d",
+         selectedTextColor: "white",
+        },
+       }}
+       enableSwipeMonths
+       className='rounded-2xl relative -top-20'
+       markingType='dot'
+      />
+     )}
     </View>
-    <View className='flex-row items-center justify-between '>
-     <Text className='font-omedium text-base'>Choose Ending Date:</Text>
-     <DateTimepicker
-      value={form.endDate}
-      mode='date'
-      display='default'
-      onChange={(e, selectedDate) =>
-       setForm({ ...form, endDate: selectedDate as Date })
-      }
-     />
+    <View>
+     <TouchableOpacity
+      onPress={() => setShowCalendar2(true)}
+      className='bg-primary px-1 py-3 rounded-lg'
+     >
+      <Text className='font-omedium text-base text-center text-white-100 '>
+       {`${form.endDate || "End Date"}`}
+      </Text>
+     </TouchableOpacity>
+     {showCalendar2 && (
+      <Calendar
+       onDayPress={({ dateString }) => {
+        setForm({
+         ...form,
+         endDate: dateString,
+        });
+        setShowCalendar2(false);
+       }}
+       markedDates={{
+        [form.endDate]: {
+         selected: true,
+         marked: true,
+         selectedColor: "#19459d",
+         selectedTextColor: "white",
+        },
+       }}
+       enableSwipeMonths
+       className='rounded-2xl relative -top-20'
+       markingType='dot'
+      />
+     )}
     </View>
-    <View className='flex-row items-center justify-between '>
-     <Text className='font-omedium text-base'>Choose Deadline Date:</Text>
-     <DateTimepicker
-      value={form.deadline}
-      mode='date'
-      display='default'
-      onChange={(e, selectedDate) =>
-       setForm({ ...form, deadline: selectedDate as Date })
-      }
-     />
+    <View>
+     <TouchableOpacity
+      onPress={() => setShowCalendar3(true)}
+      className='bg-primary px-1 py-3 rounded-lg'
+     >
+      <Text className='font-omedium text-base text-center text-white-100 '>
+       {`${form.deadline || "Dead Line"}`}
+      </Text>
+     </TouchableOpacity>
+     {showCalendar3 && (
+      <Calendar
+       onDayPress={({ dateString }) => {
+        setForm({
+         ...form,
+         deadline: dateString,
+        });
+        setShowCalendar3(false);
+       }}
+       markedDates={{
+        [form.deadline]: {
+         selected: true,
+         marked: true,
+         selectedColor: "#19459d",
+         selectedTextColor: "white",
+        },
+       }}
+       enableSwipeMonths
+       className='rounded-2xl relative -top-20'
+       markingType='dot'
+      />
+     )}
     </View>
     <View>
      <Text className='font-omedium text-base mb-3'>Team Lead:</Text>
