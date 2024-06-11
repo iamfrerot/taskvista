@@ -12,20 +12,20 @@ import React, { useState } from "react";
 import * as DocumentPicker from "expo-document-picker";
 import { router } from "expo-router";
 import FormField from "../../components/FormField";
-import DateTimepicker from "@react-native-community/datetimepicker";
 import { icons } from "../../constants";
 import { Ionicons } from "@expo/vector-icons";
 import UserDropdown from "../../components/UserDropDown";
 import CustomButton from "../../components/CustomButton";
 import DropDownPicker from "react-native-dropdown-picker";
 import GetProjectDown from "../../components/GetProjectDown";
+import { Calendar } from "react-native-calendars";
 const createtask = () => {
  const [form, setForm] = useState<{
   name: string;
   document: null | any;
-  startdate: Date;
-  deadline: Date;
-  enddate: Date;
+  startdate: string;
+  deadline: string;
+  enddate: string;
   status: string;
   priority: string;
   description: string;
@@ -34,9 +34,9 @@ const createtask = () => {
  }>({
   name: "",
   document: null,
-  startdate: new Date(),
-  enddate: new Date(),
-  deadline: new Date(),
+  startdate: "",
+  enddate: "",
+  deadline: "",
   status: "",
   priority: "Normal",
   description: "",
@@ -45,6 +45,9 @@ const createtask = () => {
  });
  const [open, setOpen] = useState(false);
  const [isLoading, setIsLoading] = useState(false);
+ const [showCalendar, setShowCalendar] = useState(false);
+ const [showCalendar2, setShowCalendar2] = useState(false);
+ const [showCalendar3, setShowCalendar3] = useState(false);
  const filesPicker = async () => {
   const result = await DocumentPicker.getDocumentAsync();
   if (!result.canceled) {
@@ -66,12 +69,11 @@ const createtask = () => {
    project: form.project,
    description: form.description,
    developers: form.developers,
-   deadline: form.deadline,
+   deadline: new Date(form.deadline),
    priority: form.priority,
-   endDate: form.enddate,
-   startDate: form.startdate,
+   endDate: new Date(form.enddate),
+   startDate: new Date(form.startdate),
   };
-  console.log(data);
   try {
    const result = await fetch(
     "https://pmt-server-x700.onrender.com/api/v1/tasks/create",
@@ -144,38 +146,101 @@ const createtask = () => {
       )}
      </TouchableOpacity>
     </View>
-    <View className='flex-row items-center justify-between '>
-     <Text className='font-omedium text-base'>Choose Starting Date</Text>
-     <DateTimepicker
-      value={form.startdate}
-      mode='date'
-      display='default'
-      onChange={(e, selectedDate) =>
-       setForm({ ...form, startdate: selectedDate as Date })
-      }
-     />
+    <View>
+     <TouchableOpacity
+      onPress={() => setShowCalendar(true)}
+      className='bg-primary px-1 py-3 rounded-lg'
+     >
+      <Text className='font-omedium text-base text-center text-white-100 '>
+       {`${form.startdate || "Start Date"}`}
+      </Text>
+     </TouchableOpacity>
+     {showCalendar && (
+      <Calendar
+       onDayPress={({ dateString }) => {
+        setForm({
+         ...form,
+         startdate: dateString,
+        });
+        setShowCalendar(false);
+       }}
+       markedDates={{
+        [form.startdate]: {
+         selected: true,
+         marked: true,
+         selectedColor: "#19459d",
+         selectedTextColor: "white",
+        },
+       }}
+       enableSwipeMonths
+       className='rounded-2xl relative -top-20'
+       markingType='dot'
+      />
+     )}
     </View>
-    <View className='flex-row items-center justify-between '>
-     <Text className='font-omedium text-base'>Choose Ending Date</Text>
-     <DateTimepicker
-      value={form.enddate}
-      mode='date'
-      display='default'
-      onChange={(e, selectedDate) =>
-       setForm({ ...form, enddate: selectedDate as Date })
-      }
-     />
+    <View>
+     <TouchableOpacity
+      onPress={() => setShowCalendar2(true)}
+      className='bg-primary px-1 py-3 rounded-lg'
+     >
+      <Text className='font-omedium text-base text-center text-white-100 '>
+       {`${form.enddate || "End Date"}`}
+      </Text>
+     </TouchableOpacity>
+     {showCalendar2 && (
+      <Calendar
+       onDayPress={({ dateString }) => {
+        setForm({
+         ...form,
+         enddate: dateString,
+        });
+        setShowCalendar2(false);
+       }}
+       markedDates={{
+        [form.enddate]: {
+         selected: true,
+         marked: true,
+         selectedColor: "#19459d",
+         selectedTextColor: "white",
+        },
+       }}
+       enableSwipeMonths
+       className='rounded-2xl relative -top-20'
+       markingType='dot'
+      />
+     )}
     </View>
-    <View className='flex-row items-center justify-between '>
-     <Text className='font-omedium text-base'>Choose Deadline Date:</Text>
-     <DateTimepicker
-      value={form.deadline}
-      mode='date'
-      display='default'
-      onChange={(e, selectedDate) =>
-       setForm({ ...form, deadline: selectedDate as Date })
-      }
-     />
+    <View>
+     <TouchableOpacity
+      onPress={() => setShowCalendar3(true)}
+      className='bg-primary px-1 py-3 rounded-lg'
+     >
+      <Text className='font-omedium text-base text-center text-white-100 '>
+       {`${form.deadline || "Deadline"}`}
+      </Text>
+     </TouchableOpacity>
+     {showCalendar3 && (
+      <Calendar
+       onDayPress={({ dateString }) => {
+        setForm({
+         ...form,
+         deadline: dateString,
+        });
+        setShowCalendar3(false);
+       }}
+       markedDates={{
+        [form.deadline]: {
+         selected: true,
+         marked: true,
+         selectedColor: "#19459d",
+         selectedTextColor: "white",
+        },
+       }}
+       enableSwipeMonths
+       className='rounded-2xl relative -top-20'
+       markingType='dot'
+      />
+     )}
     </View>
     <View>
      <Text className='text-base font-omedium mb-3'>Priority:</Text>
