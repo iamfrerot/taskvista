@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, FlatList, Image, Text, StyleSheet, ListRenderItem, TouchableOpacity, Button } from 'react-native';
+import { View, FlatList, Image, Text, StyleSheet, ListRenderItem, TouchableOpacity } from 'react-native';
 import { chatData } from '../../constants/data';
 import { ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons'; // Import Ionicons
 
 interface ChatItem {
   id: number;
@@ -15,7 +16,6 @@ interface ChatItem {
 const ChatListScreen = () => {
   const router = useRouter();
   
-
   const renderItem: ListRenderItem<ChatItem> = ({ item, index }) => (
     <TouchableOpacity onPress={() => {
       console.log("Navigating to ChatRoomScreen with user:", item);
@@ -40,7 +40,10 @@ const ChatListScreen = () => {
         keyExtractor={item => item.id.toString()}
         style={styles.list}
       />
-      <Button title="New Chat" onPress={() => router.push('/SelectUserScreen')} />
+      {/* Replace Button with Ionicons */}
+      <TouchableOpacity style={styles.newChatButton} onPress={() => router.push('/SelectUserScreen')}>
+        <Ionicons name="chatbubble" size={24} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -79,6 +82,15 @@ const styles = StyleSheet.create({
   time: {
     color: '#888',
     fontSize: 12,
+  },
+  newChatButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#19459d',
+    borderRadius: 50,
+    padding: 10,
+    elevation: 3,
   },
 });
 

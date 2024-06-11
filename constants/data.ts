@@ -120,4 +120,5 @@ export const groupData = [
     time: '3 days ago',
     groupImage: require('../assets/images/proj1.jpeg'),  
   },
+  
 ];
