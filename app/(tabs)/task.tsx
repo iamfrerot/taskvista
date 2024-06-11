@@ -11,17 +11,19 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import TaskCard from "../../components/TaskCard";
 import { useEffect } from "react";
+import { StatusBar } from "expo-status-bar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const tasks = () => {
  const [isLoading, setIsLoading] = useState(true);
  const [tasks, setTasks] = useState();
  useEffect(() => {
   const getTasks = async () => {
+   const token = await AsyncStorage.getItem("token");
    const res = await fetch(
     "https://pmt-server-x700.onrender.com/api/v1/tasks/view",
     {
      headers: {
-      Authorization:
-       "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjQ0ZTU2YzFkODk5NzhjMjdmZDJhNTgiLCJlbWFpbCI6InBtdGFkbWluQGdtYWlsLmNvbSIsInBob25lIjoiMDc4ODIzMzU2MCIsImZ1bGxOYW1lcyI6IktldmluZSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTcxNzM1ODc2Mn0.zNKjtG2SxKWIR9HPkolgy8ltNCC4wrTvHpf7eKNjVLc",
+      Authorization: `Bearer ${token}`,
      },
     }
    );
@@ -33,8 +35,9 @@ const tasks = () => {
  }, []);
  if (isLoading)
   return (
-   <SafeAreaView className='items-center justify-center h-full bg-gray-100'>
-    <ActivityIndicator color='darkblue' size='large' />
+   <SafeAreaView className='items-center justify-center h-full bg-primary'>
+    <ActivityIndicator color='white' size='large' />
+    <StatusBar style='light' />
    </SafeAreaView>
   );
  return (

@@ -3,16 +3,17 @@ import React, { useState } from "react";
 import TaskCard from "./TaskCard";
 import { Link } from "expo-router";
 import { useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const TaskHome = () => {
  const [task, setTasks] = useState();
  useEffect(() => {
   const getTasks = async () => {
+   const token = await AsyncStorage.getItem("token");
    const res = await fetch(
     "https://pmt-server-x700.onrender.com/api/v1/tasks/view",
     {
      headers: {
-      Authorization:
-       "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjQ0ZTU2YzFkODk5NzhjMjdmZDJhNTgiLCJlbWFpbCI6InBtdGFkbWluQGdtYWlsLmNvbSIsInBob25lIjoiMDc4ODIzMzU2MCIsImZ1bGxOYW1lcyI6IktldmluZSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTcxNzM1ODc2Mn0.zNKjtG2SxKWIR9HPkolgy8ltNCC4wrTvHpf7eKNjVLc",
+      Authorization: `Bearer ${token} `,
      },
     }
    );

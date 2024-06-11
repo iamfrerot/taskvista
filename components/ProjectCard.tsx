@@ -5,7 +5,7 @@ import { ProjectProp } from "./ProjectHome";
 
 const ProjectCard = ({ item }: { item: ProjectProp }) => {
  return (
-  <View className='bg-white-100 px-3 py-4 rounded-xl min-h-[120px] min-w-[350px] mr-3 flex-row justify-between'>
+  <View className='bg-white-100 px-3 py-4 rounded-xl min-h-[120px] min-w-[350px] flex-row justify-between'>
    <View>
     <View>
      <Text className='font-osemibold text-lg max-w-[190px]'>{item.name}</Text>

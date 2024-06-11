@@ -18,6 +18,7 @@ import CustomButton from "../../components/CustomButton";
 import DropDownPicker from "react-native-dropdown-picker";
 import * as ImagePicker from "expo-image-picker";
 import { Calendar } from "react-native-calendars";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const createproject = () => {
  interface formTypes {
   name: string;
@@ -84,14 +85,14 @@ const createproject = () => {
    status: form.status,
   };
   setIsLoading(true);
+  const token = await AsyncStorage.getItem("token");
   try {
    const res = await fetch(
     "https://pmt-server-x700.onrender.com/api/v1/projects/create",
     {
      method: "POST",
      headers: {
-      Authorization:
-       "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjQ0ZTU2YzFkODk5NzhjMjdmZDJhNTgiLCJlbWFpbCI6InBtdGFkbWluQGdtYWlsLmNvbSIsInBob25lIjoiMDc4ODIzMzU2MCIsImZ1bGxOYW1lcyI6IktldmluZSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTcxNzM1ODc2Mn0.zNKjtG2SxKWIR9HPkolgy8ltNCC4wrTvHpf7eKNjVLc",
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
      },
      body: JSON.stringify(data),
@@ -111,7 +112,7 @@ const createproject = () => {
      deadline: "",
      priority: "Normal",
     });
-    router.back();
+    router.push("/home");
    }
   } catch (error) {
    console.log(error);
@@ -120,8 +121,8 @@ const createproject = () => {
 
  if (isLoading)
   return (
-   <SafeAreaView className='items-center justify-center h-full bg-gray-100'>
-    <ActivityIndicator color='darkblue' size='large' />
+   <SafeAreaView className='items-center justify-center h-full bg-primary'>
+    <ActivityIndicator color='white' size='large' />
    </SafeAreaView>
   );
  return (
@@ -158,7 +159,7 @@ const createproject = () => {
     <FormField
      title='Project Name'
      value={form.name}
-     placeholder='Name Your Task'
+     placeholder='Name Your Project'
      titleStyles='text-base'
      handleChangeText={(e: string) => setForm({ ...form, name: e })}
     />

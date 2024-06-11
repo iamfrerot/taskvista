@@ -19,6 +19,7 @@ import CustomButton from "../../components/CustomButton";
 import DropDownPicker from "react-native-dropdown-picker";
 import GetProjectDown from "../../components/GetProjectDown";
 import { Calendar } from "react-native-calendars";
+import { StatusBar } from "expo-status-bar";
 const createtask = () => {
  const [form, setForm] = useState<{
   name: string;
@@ -98,8 +99,9 @@ const createtask = () => {
  };
  if (isLoading)
   return (
-   <SafeAreaView className='items-center justify-center h-full bg-gray-100'>
-    <ActivityIndicator color='darkblue' size='large' />
+   <SafeAreaView className='items-center justify-center h-full bg-primary'>
+    <ActivityIndicator color='white' size='large' />
+    <StatusBar style='light' />
    </SafeAreaView>
   );
  return (
