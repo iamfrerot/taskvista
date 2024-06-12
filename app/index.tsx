@@ -25,8 +25,9 @@ export default function App() {
  }, []);
  if (isLoading)
   return (
-   <SafeAreaView className='items-center justify-center h-full bg-gray-100'>
-    <ActivityIndicator color='darkblue' size='large' />
+   <SafeAreaView className='items-center justify-center h-full bg-primary'>
+    <ActivityIndicator color='white' size='large' />
+    <StatusBar style='light' />
    </SafeAreaView>
   );
  return (

@@ -41,7 +41,7 @@ const home = () => {
      </TouchableOpacity>
     </View>
     <ScrollView showsVerticalScrollIndicator={false}>
-     <TaskCompeted value={0} />
+     <TaskCompeted value={29} />
      {/* <CalendarHome /> */}
      <TaskHome />
      <ProjectHome />

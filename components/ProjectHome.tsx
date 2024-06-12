@@ -2,6 +2,7 @@ import { View, FlatList, Text, ScrollView } from "react-native";
 import { Link } from "expo-router";
 import ProjectCard from "./ProjectCard";
 import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export type ProjectProp = {
  __v: number;
@@ -24,12 +25,12 @@ export type ProjectProp = {
 const ProjectHome = () => {
  useEffect(() => {
   const getProject = async () => {
+   const token = await AsyncStorage.getItem("token");
    const res = await fetch(
     "https://pmt-server-x700.onrender.com/api/v1/projects/view",
     {
      headers: {
-      Authorization:
-       "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjQ0ZTU2YzFkODk5NzhjMjdmZDJhNTgiLCJlbWFpbCI6InBtdGFkbWluQGdtYWlsLmNvbSIsInBob25lIjoiMDc4ODIzMzU2MCIsImZ1bGxOYW1lcyI6IktldmluZSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTcxNzM1ODc2Mn0.zNKjtG2SxKWIR9HPkolgy8ltNCC4wrTvHpf7eKNjVLc",
+      Authorization: `Bearer ${token}`,
      },
     }
    );
@@ -53,7 +54,15 @@ const ProjectHome = () => {
      className='pl-4'
      data={projects}
      keyExtractor={(item) => item._id}
-     renderItem={({ item }) => <ProjectCard item={item} />}
+     renderItem={({ item }) =>
+      item.status !== "done" ? (
+       <View className='mr-3'>
+        <ProjectCard item={item} />
+       </View>
+      ) : (
+       <></>
+      )
+     }
      horizontal
      showsHorizontalScrollIndicator={false}
     />
