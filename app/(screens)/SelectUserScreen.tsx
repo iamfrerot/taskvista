@@ -4,18 +4,32 @@ import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from "@expo/vector-icons";
+import jwt_decode from 'jwt-decode';
 
 interface User {
   _id: string;
-  fullNames: string; 
-  profile: string; 
+  fullNames: string;
+  profile: string;
+}
+
+interface DecodedToken {
+  _id: string;
+  fullNames: string;
+  email: string;
+  phone: string;
+  role: string;
+  iat: number;
 }
 
 const SelectUserScreen = () => {
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  //route back
+
+  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjVjMTQ3NjBlM2EyYjBhOGEwOTQ1YTQiLCJlbWFpbCI6ImdkdXNoaW1pbWFuYTZAZ21haWwuY29tIiwicGhvbmUiOiIwNzg0NjAwNzYyIiwiZnVsbE5hbWVzIjoiRHVzaGltaW1hbmEiLCJyb2xlIjoic3Rha2Vob2xkZXIiLCJpYXQiOjE3MTczMzk4NzR9.4VsTqey9dI3jV2LNljl0sGvEo5x9gDN8sGadxuhaXCY';
+  // const decodedToken: DecodedToken = jwt_decode(token);
+
+  // Route back
   const goback = () => {
     router.back();
   }
@@ -23,37 +37,64 @@ const SelectUserScreen = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjVjMTQ3NjBlM2EyYjBhOGEwOTQ1YTQiLCJlbWFpbCI6ImdkdXNoaW1pbWFuYTZAZ21haWwuY29tIiwicGhvbmUiOiIwNzg0NjAwNzYyIiwiZnVsbE5hbWVzIjoiRHVzaGltaW1hbmEiLCJyb2xlIjoic3Rha2Vob2xkZXIiLCJpYXQiOjE3MTczMzk4NzR9.4VsTqey9dI3jV2LNljl0sGvEo5x9gDN8sGadxuhaXCY'; // Replace with the provided token
         const response = await axios.get('https://pmt-server-x700.onrender.com/api/v1/users/view', {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         });
-        
+
         setUsers(response.data.data.data);
       } catch (error: any) {
         if (error.response) {
-          
           console.error('Server responded with error:', error.response.data);
         } else if (error.request) {
-         
           console.error('No response received:', error.request);
         } else {
-        
           console.error('Request setup error:', error.message);
         }
-        
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchUsers();
   }, []);
 
+  const createChatAndNavigate = async (user: User) => {
+    try {
+      const response = await axios.post(
+        'https://pmt-server-x700.onrender.com/api/v1/chats/create-individual',
+        {
+          title: user.fullNames,
+          image: user.profile,
+          type: 'private',
+          privateUser2: user._id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.data.data) {
+        router.push({ pathname: '/ChatRoomScreen', params: { chatId: response.data.data._id, user: JSON.stringify(user) } });
+      }
+    } catch (error: any) {
+      if (error.response) {
+        console.error('Server responded with error:', error.response.data);
+      } else if (error.request) {
+        console.error('No response received:', error.request);
+      } else {
+        console.error('Request setup error:', error.message);
+      }
+    }
+  };
+
   const renderItem = ({ item }: { item: User }) => (
-    <TouchableOpacity onPress={() => router.push({ pathname: '/ChatRoomScreen', params: { user: JSON.stringify(item) } })}>
+    <TouchableOpacity onPress={() => createChatAndNavigate(item)}>
       <View style={styles.userItem}>
         <Image source={{ uri: item.profile }} style={styles.profileImage} />
         <Text style={styles.name}>{item.fullNames}</Text>
@@ -105,16 +146,6 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    borderRadius: 25,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 16,
-    marginVertical: 8,
-    marginLeft: 8,
-    marginRight: 8,
-    width: "100%",
   },
   backButton: {
     padding: 10,
