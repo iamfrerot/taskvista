@@ -1,4 +1,3 @@
-// /home/happi/TaskVista/app/(screens)/ChatRoomScreen.tsx
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -10,11 +9,11 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ChatMessage } from "../../constants/data";
 
 interface Message {
   id: number;
@@ -23,65 +22,117 @@ interface Message {
   time: string;
 }
 
-// Define constant user data
-const user1 = {
-  id: 2,
-  lastMessage: "Hey, how are you?",
-  name: "John Doe",
-  profileImage: require("../../assets/images/loginimg.png"), // Provide the correct path to the image
-  time: "10:30 AM",
-};
-
 interface ChatRoomScreenProps {
   route?: {
     params?: {
       user?: string;
+      chatId?: string;
     };
   };
 }
 
 const ChatRoomScreen: React.FC<ChatRoomScreenProps> = ({ route }) => {
   const router = useRouter();
-  const [user, setUser] = useState<{ name: string; profileImage: any } | null>(
-    null
-  );
+  const [user, setUser] = useState<{ name: string; profileImage: any } | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
+  const [loading, setLoading] = useState(true);
+  const chatId = route?.params?.chatId;
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjQ0ZTU2YzFkODk5NzhjMjdmZDJhNTgiLCJlbWFybCI6InBtdGFkbWluQGdtYWlsLmNvbSIsInBob25lIjoiMDc4ODIzMzU2MCIsImZ1bGxOYW1lcyIsIktldmluZSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTcxNzM1ODc2Mn0.zNKjtG2SxKWIR9HPkolgy8ltNCC4wrTvHpf7eKNjVLc";
 
   useEffect(() => {
-    if (route && route.params && route.params.user) {
+    const fetchChatData = async () => {
       try {
-        const parsedUser = JSON.parse(route.params.user);
-        setUser(parsedUser);
+        // Fetch chat data
+        const chatResponse = await fetch(
+          `https://pmt-server-x700.onrender.com/api/v1/chats/view/${chatId}?populate=privateUser1,privateUser2`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const chatData = await chatResponse.json();
+        console.log("Chat Data:", chatData); // Log chat data for debugging
+
+        if (chatData.data) {
+          const userData = chatData.data.privateUser1 || chatData.data.privateUser2;
+          if (userData) {
+            setUser({
+              name: userData.fullNames,
+              profileImage: { uri: userData.profileImage }, // Update based on your backend response
+            });
+          }
+        }
+
+        // Fetch messages
+        const messagesResponse = await fetch(
+          `https://pmt-server-x700.onrender.com/api/v1/messages?chat=${chatId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const messagesData = await messagesResponse.json();
+        console.log("Messages Data:", messagesData); // Log messages data for debugging
+
+        if (messagesData.data) {
+          const formattedMessages = messagesData.data.map((msg: any) => ({
+            id: msg._id,
+            sender: msg.sender.fullNames,
+            text: msg.text,
+            time: new Date(msg.createdAt).toLocaleTimeString(),
+          }));
+          setMessages(formattedMessages);
+        }
       } catch (error) {
-        console.error("Error parsing user object:", error);
+        console.error("Error fetching chat data:", error);
+      } finally {
+        setLoading(false);
       }
+    };
+
+    if (chatId) {
+      fetchChatData();
     }
+  }, [chatId]);
 
-    // Set default messages from ChatMessage
-    const defaultMessages = [
-      { id: ChatMessage[0].id, sender: ChatMessage[0].sender, text: ChatMessage[0].message, time: '10:00 AM' },
-      { id: ChatMessage[1].id, sender: ChatMessage[1].sender, text: ChatMessage[1].message, time: '10:01 AM' },
-      { id: ChatMessage[2].id, sender: ChatMessage[2].sender, text: ChatMessage[2].message, time: '10:02 AM' },
-      { id: ChatMessage[3].id, sender: ChatMessage[3].sender, text: ChatMessage[3].message, time: '10:04 AM' },
-    ];
-    setMessages(defaultMessages);
-  }, [route]);
-
-  if (!user1) {
-    return <Text>Error: User not found</Text>;
-  }
-
-  const handleSend = () => {
+  const handleSend = async () => {
     if (inputText.trim()) {
-      const newMessage: Message = {
-        id: messages.length + 1,
-        sender: "currentUser",
+      const newMessage = {
         text: inputText,
-        time: new Date().toLocaleTimeString(),
+        type: "text",
       };
-      setMessages([...messages, newMessage]);
-      setInputText("");
+
+      try {
+        const response = await fetch(
+          `https://pmt-server-x700.onrender.com/api/v1/chats/send-message/${chatId}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newMessage),
+          }
+        );
+        const messageData = await response.json();
+        console.log("Sent Message Data:", messageData); // Log sent message data for debugging
+
+        if (messageData.data) {
+          const formattedMessage = {
+            id: messageData.data._id,
+            sender: "currentUser",
+            text: messageData.data.text,
+            time: new Date(messageData.data.createdAt).toLocaleTimeString(),
+          };
+          setMessages([...messages, formattedMessage]);
+          setInputText("");
+        }
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
     }
   };
 
@@ -99,6 +150,14 @@ const ChatRoomScreen: React.FC<ChatRoomScreenProps> = ({ route }) => {
     </View>
   );
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#19459d" />
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <KeyboardAvoidingView
@@ -110,8 +169,8 @@ const ChatRoomScreen: React.FC<ChatRoomScreenProps> = ({ route }) => {
           <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 10 }}>
             <Ionicons name='arrow-back' size={24} color='black' />
           </TouchableOpacity>
-          {user1 && <Image source={user1.profileImage} style={styles.profileImage} />}
-          {user1 && <Text style={styles.userName}>{user1.name}</Text>}
+          {user && <Image source={user.profileImage} style={styles.profileImage} />}
+          {user && <Text style={styles.userName}>{user.name}</Text>}
         </View>
         <FlatList
           data={messages}
@@ -199,6 +258,11 @@ const styles = StyleSheet.create({
     padding: 10,
     justifyContent: "center",
     alignItems: "center",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
