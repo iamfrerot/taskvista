@@ -25,7 +25,7 @@ const ScreensLayout = () => {
    />
    <Stack.Screen
     name='SelectUserScreen'
-    options={{ headerShown: true, title: "Select User" }}
+    options={{ headerShown: false, title: "Select User" }}
    />
    <Stack.Screen name='GroupChatRoomScreen' options={{ headerShown: false }} />
   </Stack>

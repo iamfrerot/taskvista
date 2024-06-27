@@ -28,19 +28,24 @@ const InboxScreen = () => {
    <View
     style={{ flexDirection: "row", justifyContent: "center", marginTop: 20 }}
    >
-    <TouchableOpacity
-     onPress={() => setActiveTab("chat")}
-     style={{ marginRight: 20 }}
-    >
+    <TouchableOpacity onPress={() => setActiveTab("chat")} className={`mr-6 `}>
      <Text
-      style={{ fontSize: 20, color: activeTab === "chat" ? "#19459d" : "black" }}
+      style={{
+       fontSize: 20,
+       color: activeTab === "chat" ? "#19459d" : "black",
+       fontFamily: "Outfit-Semibold",
+      }}
      >
       Chat
      </Text>
     </TouchableOpacity>
     <TouchableOpacity onPress={() => setActiveTab("group")}>
      <Text
-      style={{ fontSize: 20, color: activeTab === "group" ? "#19459d" : "black" }}
+      style={{
+       fontSize: 20,
+       color: activeTab === "group" ? "#19459d" : "black",
+       fontFamily: "Outfit-Semibold",
+      }}
      >
       Group
      </Text>
