@@ -1,108 +1,240 @@
-// /home/happi/TaskVista/app/(screens)/ChatRoomScreen.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
   Image,
-  TextInput,
-  TouchableOpacity,
   FlatList,
   StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+  TextInput,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface Message {
-  id: number;
-  sender: string;
+  _id: string;
   text: string;
-  time: string;
-  profileImage: any;
+  sender: {
+    _id: string;
+    fullNames: string;
+    profile: string;
+  };
+  createdAt: string;
 }
 
-// Define constant user data
-const user1 = {
-  id: 2,
-  name: "John Peter",
-  profileImage: require("../../assets/images/loginimg.png"),
+const CHATBOT = {
+  _id: "667c32438d309cd70ecedad2",
+  fullNames: "Chatbot",
+  profile: "😊",
 };
 
-const user2 = {
-  id: 3,
-  name: "Jane Smith",
-  profileImage: require("../../assets/images/dev2.jpeg"),
-};
-
-const user3 = {
-  id: 4,
-  name: "Alice Johnson",
-  profileImage: require("../../assets/images/dev3.jpeg"),
-};
-
-const group = {
-  id: 1,
-  groupName: 'Frontend Team',
-  time: 'Yesterday',
-  groupImage: require('../../assets/images/proj1.jpeg'),
-};
+const chatbotMessages = ["Hello @Team 👋!\n1. What did you do yesterday?\n2. What are you planning to do today?\n3. Are there any blockers in your way?"];
 
 interface ChatRoomScreenProps {
   route?: {
     params?: {
-      user?: string;
+      chatId?: string;
+      chatTitle?: string;
+      chatImage?: string;
     };
   };
 }
 
 const GroupChatRoomScreen: React.FC<ChatRoomScreenProps> = ({ route }) => {
   const router = useRouter();
-  // set const data to hold the user object
-  const [user, setUser] = useState<{ name: string; profileImage: any } | null>(
-    null
-  );
+  const { chatId, chatTitle, chatImage } = useLocalSearchParams<{ chatId: string, chatTitle: string, chatImage: string }>();
+  const [currentUser, setCurrentUser] = useState<{ _id: string; name: string; profileImage: string } | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [inputText, setInputText] = useState("");
+  const [newMessage, setNewMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const fetchIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const flatListRef = useRef<FlatList<Message> | null>(null);
 
-  useEffect(() => {
-    if (route && route.params && route.params.user) {
-      try {
-        const parsedUser = JSON.parse(route.params.user);
-        setUser(parsedUser);
-      } catch (error) {
-        console.error("Error parsing user object:", error);
-        // Handle parsing error gracefully, for example, navigate back to the previous screen or show an error message
-      }
+  const sendChatbotMessages = async () => {
+    if (!chatId) {
+      console.error("Chat ID is missing.");
+      setError("Chat ID is missing.");
+      return;
     }
 
-    // Set default messages from different users
-    const defaultMessages = [
-      { id: 1, sender: user1.name, text: "Hey, how are you?", time: '10:00 AM', profileImage: user1.profileImage },
-      { id: 2, sender: user2.name, text: "I'm good, how about you?", time: '10:01 AM', profileImage: user2.profileImage },
-      { id: 3, sender: user3.name, text: "Hi everyone!", time: '10:02 AM', profileImage: user3.profileImage },
-      { id: 4, sender: user1.name, text: "Hello! Let's start the meeting.", time: '10:04 AM', profileImage: user1.profileImage },
-    ];
-    setMessages(defaultMessages);
-  }, [route]);
+    if (!token) {
+      console.error("Token is missing.");
+      setError("Token is missing.");
+      return;
+    }
 
-  // If user object is not found or parsing failed, display an error message
-  if (!user1) {
-    return <Text>Error: User not found</Text>;
-  }
+    for (const message of chatbotMessages) {
+      try {
+        const response = await fetch(
+          `https://pmt-server-x700.onrender.com/api/v1/chats/send-message/${chatId}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              text: message,
+              type: "standup",
+              sender: CHATBOT._id,
+            }),
+          }
+        );
 
-  const handleSend = () => {
-    if (inputText.trim()) {
-      const newMessage: Message = {
-        id: messages.length + 1,
-        sender: "currentUser",
-        text: inputText,
-        time: new Date().toLocaleTimeString(),
-        profileImage: require("../../assets/images/dev1.png"), // Assume current user's profile image
-      };
-      setMessages([...messages, newMessage]);
-      setInputText("");
+        const result = await response.json();
+
+        if (response.ok && result.status === "Success") {
+          const newMsg: Message = {
+            _id: result.data._id,
+            text: message,
+            sender: CHATBOT,
+            createdAt: new Date().toISOString(),
+          };
+
+          setMessages((prevMessages) => [...prevMessages, newMsg]);
+
+          if (flatListRef.current) {
+            flatListRef.current.scrollToEnd({ animated: true });
+          }
+        } else {
+          console.error("Failed to send chatbot message:", result);
+          setError(result.message || "Failed to send chatbot message");
+        }
+      } catch (error) {
+        console.error("Error sending chatbot message:", error);
+        setError("Error sending chatbot message");
+      }
+    }
+  };
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const userId = await AsyncStorage.getItem('userId');
+        if (token) {
+          setToken(token);
+          setUserId(userId);
+        } else {
+          router.push('/home');
+        }
+      } catch (error) {
+        console.error("Error fetching token:", error);
+        setError("Failed to fetch token");
+      }
+    };
+
+    fetchToken();
+
+    const fetchChatData = async () => {
+      try {
+        if (!chatId || !token) return;
+
+        const chatResponse = await fetch(
+          `https://pmt-server-x700.onrender.com/api/v1/chats/view/${chatId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const chatData = await chatResponse.json();
+
+        if (chatData.status === "Success" && chatData.data) {
+          if (chatData.data.messages && chatData.data.messages.length > 0) {
+            const formattedMessages = chatData.data.messages.map((msg: Message) => ({
+              _id: msg._id,
+              text: msg.text,
+              sender: {
+                _id: msg.sender._id,
+                fullNames: msg.sender.fullNames,
+                profile: msg.sender.profile,
+              },
+              createdAt: new Date(msg.createdAt),
+            }));
+            formattedMessages.sort((a: any, b: any) => a.createdAt.getTime() - b.createdAt.getTime());
+            setMessages(formattedMessages);
+          }
+        } else {
+          setError("Failed to fetch chat data");
+        }
+      } catch (error) {
+        console.error("Error fetching chat data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChatData();
+    fetchIntervalRef.current = setInterval(fetchChatData, 1000) as NodeJS.Timeout;
+
+    const chatbotInterval = setInterval(() => {
+      if (chatId && token) {
+        sendChatbotMessages();
+      }
+    }, 60000); // 1min
+
+    return () => {
+      if (fetchIntervalRef.current) {
+        clearInterval(fetchIntervalRef.current);
+      }
+      clearInterval(chatbotInterval);
+    };
+  }, [chatId, token, router]);
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim()) return;
+
+    try {
+      const response = await fetch(
+        `https://pmt-server-x700.onrender.com/api/v1/chats/send-message/${chatId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            text: newMessage,
+            type: "text",
+            sender: userId ?? "",
+          }),
+        }
+      );
+
+      const result = await response.json();
+      if (result.status === "Success") {
+        const newMsg: Message = {
+          _id: result.data._id,
+          text: newMessage,
+          sender: {
+            _id: userId ?? "",
+            fullNames: "",
+            profile: "",
+          },
+          createdAt: new Date().toISOString(),
+        };
+
+        setMessages((prevMessages) => [...prevMessages, newMsg]);
+        setNewMessage("");
+
+        if (flatListRef.current) {
+          flatListRef.current.scrollToEnd({ animated: true });
+        }
+      } else {
+        setError("Failed to send message");
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setError("Failed to send message");
     }
   };
 
@@ -110,48 +242,97 @@ const GroupChatRoomScreen: React.FC<ChatRoomScreenProps> = ({ route }) => {
     <View
       style={[
         styles.messageItem,
-        item.sender === "currentUser"
-          ? styles.currentUserMessage
-          : styles.otherUserMessage,
+        item.sender._id === userId ? styles.currentUserMessage : styles.otherUserMessage,
       ]}
     >
-      <Image source={item.profileImage} style={styles.messageProfileImage} />
       <View style={styles.messageContent}>
+        <View style={styles.messageRow}>
+          {item.sender.profile ? (
+            <Image source={{ uri: item.sender.profile }} style={styles.avatar} />
+          ) : (
+            <Text style={styles.avatar}>😊</Text>
+          )}
+          <Text style={styles.senderName}>{item.sender.fullNames}</Text>
+        </View>
         <Text style={styles.messageText}>{item.text}</Text>
-        <Text style={styles.messageTime}>{item.time}</Text>
+        <Text style={styles.messageTime}>{getRelativeTime(item.createdAt)}</Text>
       </View>
     </View>
   );
 
+  const getRelativeTime = (createdAt: string) => {
+    const messageDate = new Date(createdAt);
+    const currentDate = new Date();
+    const diffTime = currentDate.getTime() - messageDate.getTime();
+    const diffSeconds = Math.floor(diffTime / 1000);
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffSeconds < 60) {
+      return "Just now";
+    } else if (diffMinutes < 60) {
+      return `${diffMinutes} minutes ago`;
+    } else if (diffHours < 24) {
+      return `${diffHours} hours ago`;
+    } else {
+      return `${diffDays} days ago`;
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#19459d" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>{error}</Text>
+      </View>
+    );
+  }
+
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={90}
+        style={styles.keyboardAvoidingView}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 10 }}>
-            <Ionicons name='arrow-back' size={24} color='black' />
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="black" />
           </TouchableOpacity>
-          {group && <Image source={group.groupImage} style={styles.profileImage} />}
-          {group && <Text style={styles.userName}>{group.groupName}</Text>}
+          {chatImage ? (
+            <Image source={{ uri: chatImage }} style={styles.chatImage} />
+          ) : (
+            <View style={styles.chatImagePlaceholder}>
+              <Text style={styles.chatImageText}>😊</Text>
+            </View>
+          )}
+          <Text style={styles.chatTitle}>{chatTitle}</Text>
         </View>
+
         <FlatList
+          ref={flatListRef}
           data={messages}
+          keyExtractor={(item) => item._id}
           renderItem={renderMessage}
-          keyExtractor={(item) => item.id.toString()}
-          style={styles.messageList}
+          contentContainerStyle={styles.messageList}
         />
+
         <View style={styles.inputContainer}>
           <TextInput
-            value={inputText}
-            onChangeText={setInputText}
-            placeholder='Type a message'
-            style={styles.textInput}
+            style={styles.input}
+            placeholder="Type your message..."
+            value={newMessage}
+            onChangeText={setNewMessage}
           />
-          <TouchableOpacity onPress={handleSend} style={styles.sendButton}>
-            <Ionicons name='send' size={24} color='#fff' />
+          <TouchableOpacity onPress={handleSendMessage} style={styles.sendButton}>
+            <Ionicons name="send" size={24} color="#19459d" />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -160,80 +341,111 @@ const GroupChatRoomScreen: React.FC<ChatRoomScreenProps> = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  keyboardAvoidingView: {
+    flex: 1,
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 15,
-    backgroundColor: "#f8f8f8",
+    padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },
-  profileImage: {
+  backButton: {
+    marginRight: 10,
+  },
+  chatImage: {
     width: 40,
     height: 40,
     borderRadius: 20,
+    marginRight: 10,
   },
-  userName: {
-    marginLeft: 10,
+  chatImagePlaceholder: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ddd",
+  },
+  chatImageText: {
+    fontSize: 24,
+  },
+  chatTitle: {
     fontSize: 18,
     fontWeight: "bold",
   },
   messageList: {
-    flex: 1,
-    backgroundColor: "#fff",
+    padding: 10,
   },
   messageItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 5,
-    marginHorizontal: 10,
-    padding: 10,
-    borderRadius: 5,
+    marginBottom: 10,
   },
   currentUserMessage: {
-    backgroundColor: "#dcf8c6",
     alignSelf: "flex-end",
+    backgroundColor: "#DCF8C6",
+    borderRadius: 10,
+    padding: 10,
   },
   otherUserMessage: {
-    backgroundColor: "#f1f1f1",
     alignSelf: "flex-start",
+    backgroundColor: "#FFF",
+    borderRadius: 10,
+    padding: 10,
   },
-  messageProfileImage: {
+  messageContent: {
+    maxWidth: "80%",
+  },
+  messageRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  avatar: {
     width: 30,
     height: 30,
     borderRadius: 15,
     marginRight: 10,
   },
-  messageContent: {
-    maxWidth: "80%",
+  senderName: {
+    fontWeight: "bold",
   },
   messageText: {
     fontSize: 16,
   },
   messageTime: {
     fontSize: 12,
-    color: "#888",
-    textAlign: "right",
+    color: "#555",
+    marginTop: 5,
   },
   inputContainer: {
     flexDirection: "row",
-    padding: 10,
+    alignItems: "center",
     borderTopWidth: 1,
     borderTopColor: "#ddd",
-  },
-  textInput: {
-    flex: 1,
     padding: 10,
-    backgroundColor: "#f1f1f1",
+  },
+  input: {
+    flex: 1,
+    height: 40,
+    borderColor: "#ddd",
+    borderWidth: 1,
     borderRadius: 20,
+    paddingLeft: 10,
   },
   sendButton: {
     marginLeft: 10,
-    backgroundColor: "#007AFF",
     borderRadius: 20,
     padding: 10,
-    justifyContent: "center",
-    alignItems: "center",
   },
 });
 
