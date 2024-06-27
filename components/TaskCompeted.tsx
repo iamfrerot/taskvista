@@ -1,8 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import { View, Text } from "react-native";
 import CircularProgress from "react-native-circular-progress-indicator";
-
-const TaskCompeted = ({ value }: { value: number }) => {
+import { useSelector } from "react-redux";
+import { Rootstate } from "../app/Redux/slices";
+import { Task } from "../app/Redux/slices/tasksSlice";
+const TaskCompeted = () => {
+ const tasks = useSelector((state: Rootstate) => state.tasks.tasks);
+ const comptetedPercentange = calculateCompletionPercentage(tasks);
  const date = new Date().getDate();
  const month = new Date().getMonth();
  let monthName: string;
@@ -51,7 +55,7 @@ const TaskCompeted = ({ value }: { value: number }) => {
   <View className='items-center flex-row justify-between mt-6 px-5'>
    <View className='flex-row items-center gap-x-2'>
     <CircularProgress
-     value={value}
+     value={comptetedPercentange}
      progressValueColor='black'
      radius={50}
      initialValue={0}
@@ -59,9 +63,10 @@ const TaskCompeted = ({ value }: { value: number }) => {
      duration={800}
      valueSuffix={"%"}
      activeStrokeWidth={10}
-     inActiveStrokeOpacity={0}
      activeStrokeColor='#19459d'
      progressValueStyle={{ fontFamily: "Outfit-SemiBold" }}
+     inActiveStrokeColor='#c7d7f5'
+     inActiveStrokeWidth={10}
     />
     <Text className='font-omedium text-sm max-w-[80px]'>Task Completed</Text>
    </View>
@@ -72,5 +77,14 @@ const TaskCompeted = ({ value }: { value: number }) => {
   </View>
  );
 };
+function calculateCompletionPercentage(tasks: Task[]) {
+ if (!tasks || tasks.length === 0) {
+  return 0;
+ }
+ const completedTasks = tasks.filter((task) => task.status === "done").length;
+ const percentageCompleted = (completedTasks / tasks.length) * 100;
+
+ return percentageCompleted;
+}
 
 export default TaskCompeted;

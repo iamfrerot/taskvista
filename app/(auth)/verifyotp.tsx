@@ -17,7 +17,7 @@ const VerifyOtp = () => {
     return;
    }
 
-   const response = await axios.post(
+   await axios.post(
     "https://pmt-server-x700.onrender.com/api/v1/reset-password",
     {
      passwordResetToken: token,

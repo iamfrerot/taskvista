@@ -10,6 +10,7 @@ module.exports = {
           500: "rgba(54, 57, 66, 1)"
         },
         white: {
+          DEFAULT: 'white',
           100: 'rgba(254, 255, 255, 1)'
         }
       },
@@ -27,4 +28,4 @@ module.exports = {
     },
   },
   plugins: [],
-}
+};

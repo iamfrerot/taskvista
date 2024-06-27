@@ -17,6 +17,9 @@ import * as Yup from "yup";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
+import { useDispatch } from "react-redux";
+import { setToken } from "../Redux/slices/authSlice";
+import { setUser } from "../Redux/slices/userSlice";
 
 interface LoginFormValues {
  email: string;
@@ -29,6 +32,7 @@ const Login = () => {
   email: Yup.string().email("Invalid email").required("Email is required"),
   password: Yup.string().required("Password is required"),
  });
+ const dispatch = useDispatch();
 
  const handleLogin = async (
   values: LoginFormValues,
@@ -36,12 +40,10 @@ const Login = () => {
  ) => {
   try {
    setIsLoading(true);
-   console.log("Submitting values:", values);
    const response = await axios.post(
     "https://pmt-server-x700.onrender.com/api/v1/auth/login",
     values
    );
-   console.log("API response:", response.data);
    if (response.status !== 200) setIsLoading(false);
    if (response.status === 200) {
     if (response.data.data.accessToken) {
@@ -51,6 +53,8 @@ const Login = () => {
       "user",
       JSON.stringify(response.data.data.user)
      );
+     dispatch(setToken(response.data.data.accessToken));
+     dispatch(setUser(response.data.data.user));
      router.replace("/home");
     } else {
      setIsLoading(false);
