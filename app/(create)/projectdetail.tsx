@@ -289,7 +289,7 @@ export const StatusPicker: React.FC<StatusPickerProps> = ({
    dropDownDirection='TOP'
    selectedItemContainerStyle={{ backgroundColor: "#19459d" }}
    selectedItemLabelStyle={{ color: "white" }}
-   textStyle={{ fontFamily: "Oufit", fontWeight: "bold" }}
+   textStyle={{ fontWeight: "bold" }}
    showTickIcon={false}
    labelStyle={{ color: textColor }}
   />
