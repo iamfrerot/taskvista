@@ -356,52 +356,62 @@ const TodoList = () => {
           </TouchableOpacity>
         </View>
       </Modal>
-      {/* Edit Task Modal */}
-      <Modal visible={isEditModalVisible} animationType="slide">
+            {/* Edit Modal */}
+            <Modal visible={isEditModalVisible} animationType="slide">
         <View style={styles.modalContainer}>
-          <TouchableOpacity
-            onPress={() => setIsEditModalVisible(false)}
-            style={styles.backButton}
-          >
-            <Ionicons name="arrow-back" size={24} color="#19459d" />
-          </TouchableOpacity>
           <Text style={styles.modalHeader}>Edit Task</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Title"
-            value={selectedTodo?.title || ""}
-            onChangeText={(text) =>
-              setSelectedTodo({ ...selectedTodo, title: text })
-            }
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Description"
-            value={selectedTodo?.description || ""}
-            onChangeText={(text) =>
-              setSelectedTodo({ ...selectedTodo, description: text })
-            }
-          />
-          <Calendar
-            onDayPress={(day) => setSelectedDate(day.dateString)}
-            markedDates={{
-              [selectedDate]: {
-                selected: true,
-                selectedColor: "#19459d",
-              },
-            }}
-          />
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={handleEditTodo}
-          >
-            <Text style={styles.buttonText}>Save Changes</Text>
-          </TouchableOpacity>
+          {selectedTodo && (
+            <>
+              <TextInput
+                style={styles.input}
+                placeholder="Title"
+                value={selectedTodo.title}
+                onChangeText={(text) =>
+                  setSelectedTodo({
+                    ...selectedTodo,
+                    title: text,
+                  })
+                }
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Description"
+                value={selectedTodo.description}
+                onChangeText={(text) =>
+                  setSelectedTodo({
+                    ...selectedTodo,
+                    description: text,
+                  })
+                }
+              />
+              <Calendar
+                onDayPress={(day) => setSelectedDate(day.dateString)}
+                markedDates={{
+                  [selectedDate]: { selected: true, marked: true },
+                }}
+              />
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => setIsEditModalVisible(false)}
+                >
+                  <Text style={styles.modalButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={handleEditTodo}
+                >
+                  <Text style={styles.modalButtonText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
         </View>
       </Modal>
     </SafeAreaView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -506,6 +516,22 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  modalButton: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 4,
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: 4,
+    backgroundColor: "#19459d",
+  },
+  modalButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  calendarContainer: {
+    marginBottom: 16,
   },
 });
 
