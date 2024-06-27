@@ -3,9 +3,9 @@ import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";
 import { SplashScreen } from "expo-router";
-
+import { Provider } from "react-redux";
 SplashScreen.preventAutoHideAsync();
-
+import store from "./Redux/store";
 const RootLayout = () => {
  const [fontsLoaded, error] = useFonts({
   "Outfit-Black": require("../assets/fonts/Outfit-Black.ttf"),
@@ -27,7 +27,7 @@ const RootLayout = () => {
  if (!fontsLoaded && !error) return null;
 
  return (
-  <>
+  <Provider store={store}>
    <Stack>
     <Stack.Screen name='index' options={{ headerShown: false }} />
     <Stack.Screen name='(auth)' options={{ headerShown: false }} />
@@ -36,7 +36,7 @@ const RootLayout = () => {
     <Stack.Screen name='(create)' options={{ headerShown: false }} />
    </Stack>
    <StatusBar style='dark' />
-  </>
+  </Provider>
  );
 };
 

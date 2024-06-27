@@ -2,7 +2,6 @@ import { View, Text, Image } from "react-native";
 import { icons } from "../../constants";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Ionicons } from "@expo/vector-icons";
 interface TabiconProps {
  icon: any;
  color: string;

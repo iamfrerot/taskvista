@@ -20,6 +20,10 @@ import DropDownPicker from "react-native-dropdown-picker";
 import GetProjectDown from "../../components/GetProjectDown";
 import { Calendar } from "react-native-calendars";
 import { StatusBar } from "expo-status-bar";
+import { useDispatch } from "react-redux";
+import { addTaskToFront } from "../Redux/slices/tasksSlice";
+import { useSelector } from "react-redux";
+import { Rootstate } from "../Redux/slices";
 const createtask = () => {
  const [form, setForm] = useState<{
   name: string;
@@ -49,17 +53,15 @@ const createtask = () => {
  const [showCalendar, setShowCalendar] = useState(false);
  const [showCalendar2, setShowCalendar2] = useState(false);
  const [showCalendar3, setShowCalendar3] = useState(false);
+ const token = useSelector((state: Rootstate) => state.auth.token);
+ const dispatch = useDispatch();
  const filesPicker = async () => {
   const result = await DocumentPicker.getDocumentAsync();
   if (!result.canceled) {
    setForm({ ...form, document: result.assets });
   }
  };
- const renderItem = ({ item }: { item: any }) => (
-  <View className='bg-primary h-12 mr-3 items-center justify-center rounded-md px-3 max-w-[100px]'>
-   <Text className='font-osemibold text-white-100'>{item.name}</Text>
-  </View>
- );
+ ``;
  const handleAssigned = (arr: any) => {
   setForm({ ...form, developers: arr });
  };
@@ -81,14 +83,15 @@ const createtask = () => {
     {
      method: "POST",
      headers: {
-      Authorization:
-       "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjQ0ZTU2YzFkODk5NzhjMjdmZDJhNTgiLCJlbWFpbCI6InBtdGFkbWluQGdtYWlsLmNvbSIsInBob25lIjoiMDc4ODIzMzU2MCIsImZ1bGxOYW1lcyI6IktldmluZSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTcxNzM1ODc2Mn0.zNKjtG2SxKWIR9HPkolgy8ltNCC4wrTvHpf7eKNjVLc",
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
      },
      body: JSON.stringify(data),
     }
    );
-   if (result.status === 201) {
+   if (result.ok) {
+    const json = await result.json();
+    dispatch(addTaskToFront(json.data));
     router.back();
     setIsLoading(false);
    }
@@ -250,24 +253,7 @@ const createtask = () => {
       open={open}
       value={form.priority}
       setValue={(value) => setForm({ ...form, priority: value("") })}
-      items={[
-       {
-        label: "Low",
-        value: "Low",
-       },
-       {
-        label: "Normal",
-        value: "Normal",
-       },
-       {
-        label: "Medium",
-        value: "Medium",
-       },
-       {
-        label: "High",
-        value: "High",
-       },
-      ]}
+      items={PRIORITY_OPTIONS}
       setOpen={setOpen}
       style={{ borderWidth: 0 }}
       dropDownContainerStyle={{
@@ -305,5 +291,22 @@ const createtask = () => {
   </SafeAreaView>
  );
 };
-
+export const PRIORITY_OPTIONS = [
+ {
+  label: "High",
+  value: "High",
+ },
+ {
+  label: "Normal",
+  value: "Normal",
+ },
+ {
+  label: "Medium",
+  value: "Medium",
+ },
+ {
+  label: "Low",
+  value: "Low",
+ },
+];
 export default createtask;

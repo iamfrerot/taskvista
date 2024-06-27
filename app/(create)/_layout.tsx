@@ -5,7 +5,11 @@ const CreateLayout = () => {
   <Stack>
    <Stack.Screen name='createtask' options={{ headerShown: false }} />
    <Stack.Screen name='createproject' options={{ headerShown: false }} />
-   <Stack.Screen name='project' options={{ headerShown: false }} />
+   <Stack.Screen name='projects' options={{ headerShown: false }} />
+   <Stack.Screen
+    name='projectdetail'
+    options={{ presentation: "fullScreenModal", headerShown: false }}
+   />
   </Stack>
  );
 };

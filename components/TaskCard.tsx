@@ -1,44 +1,38 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
-import { icons } from "../constants";
-import * as Progress from "react-native-progress";
+import { View, Text, TouchableOpacity } from "react-native";
 import AvatarGroup from "./AvatarGroup";
-
-const TaskCard = ({
- item,
-}: {
- item: { name: string; description: string; image: string };
-}) => {
+import { Task } from "../app/Redux/slices/tasksSlice";
+import { router } from "expo-router";
+import { useDispatch } from "react-redux";
+import { setCurrentTask } from "../app/Redux/slices/taskSlice";
+import { getStatusBgColor } from "../app/(tabs)/task/taskdetails";
+const TaskCard = ({ task }: { task: Task }) => {
+ const dispatch = useDispatch();
  return (
-  <View className='bg-white-100 px-2 py-4 rounded-xl min-h-[150px] min-w-[190px] '>
-   <Text className='font-osemibold text-xl'>{item.name}</Text>
-   <View className='flex-row items-center justify-between'>
-    <Text className='text-gray-100 max-w-[170px] text-sm'>
-     {item.description}
+  <TouchableOpacity
+   activeOpacity={0.5}
+   onPress={() => {
+    dispatch(setCurrentTask(task));
+    router.navigate("task/taskdetails");
+   }}
+   className='bg-white-100 px-2 py-4 rounded-xl min-h-[150px] max-h-[150px] min-w-[190px] border border-gray-400'
+  >
+   <Text className='font-osemibold text-xl'>{task.name}</Text>
+   <View className='flex-row items-center justify-between px-[2px]'>
+    <Text className='text-gray-100 max-w-[160px] text-sm'>
+     {task.description.substring(0, 15) + " ..."}
     </Text>
-    <TouchableOpacity>
-     <Image source={icons.twodots} resizeMode='contain' className='w-4 h-4' />
-    </TouchableOpacity>
+    <View className={`rounded-md p-2 ${getStatusBgColor(task.priority)}`}>
+     <Text className='font-osemibold text-white-100 text-[11px]'>
+      {task.priority}
+     </Text>
+    </View>
    </View>
    <View>
     <View>
-     {/* <View className='flex-row justify-between items-center'>
-      <Text className='font-oregular text-lg'>Progress</Text>
-      <Text className='font-omedium text-primary text-lg'>70%</Text>
-     </View> */}
-     <AvatarGroup avatars={[item.image]} size={30} spacing={-9} />
-     {/* <Progress.Bar
-      progress={0.7}
-      width={200}
-      height={8}
-      unfilledColor='#cccccc'
-      borderWidth={1}
-      borderColor='white'
-      borderRadius={20}
-      color='#19459d'
-     /> */}
+     <AvatarGroup avatars={[task.image]} size={30} spacing={-9} />
     </View>
    </View>
-  </View>
+  </TouchableOpacity>
  );
 };
 

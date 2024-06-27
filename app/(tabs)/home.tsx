@@ -1,10 +1,8 @@
-import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
+import { View, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ProfileHome from "../../components/ProfileHome";
-import { icons } from "../../constants";
 import { Ionicons } from "@expo/vector-icons";
 import TaskCompeted from "../../components/TaskCompeted";
-import CalendarHome from "../../components/CalendarHome";
 import TaskHome from "../../components/TaskHome";
 import ProjectHome from "../../components/ProjectHome";
 import { router } from "expo-router";
@@ -41,8 +39,7 @@ const home = () => {
      </TouchableOpacity>
     </View>
     <ScrollView showsVerticalScrollIndicator={false}>
-     <TaskCompeted value={29} />
-     {/* <CalendarHome /> */}
+     <TaskCompeted />
      <TaskHome />
      <ProjectHome />
      <TouchableOpacity

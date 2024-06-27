@@ -11,7 +11,7 @@ const AvatarGroup = ({
  spacing: number;
 }) => {
  return (
-  <View className='flex-row px-4 py-2'>
+  <View className='flex-row px-4 py-1'>
    {avatars.map((avatarUrl, index) => (
     <Avatar
      key={index}
@@ -22,7 +22,7 @@ const AvatarGroup = ({
       marginRight: spacing,
       marginLeft: spacing,
       borderColor: "#19459d",
-      borderWidth: 1,
+      borderWidth: 2,
      }}
     />
    ))}
