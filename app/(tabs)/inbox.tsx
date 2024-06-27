@@ -33,14 +33,14 @@ const InboxScreen = () => {
      style={{ marginRight: 20 }}
     >
      <Text
-      style={{ fontSize: 20, color: activeTab === "chat" ? "blue" : "black" }}
+      style={{ fontSize: 20, color: activeTab === "chat" ? "#19459d" : "black" }}
      >
       Chat
      </Text>
     </TouchableOpacity>
     <TouchableOpacity onPress={() => setActiveTab("group")}>
      <Text
-      style={{ fontSize: 20, color: activeTab === "group" ? "blue" : "black" }}
+      style={{ fontSize: 20, color: activeTab === "group" ? "#19459d" : "black" }}
      >
       Group
      </Text>

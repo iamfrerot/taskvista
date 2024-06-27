@@ -1,317 +1,365 @@
-import React, { useState, useEffect } from "react";
-import {
- View,
- FlatList,
- Text,
- StyleSheet,
- TouchableOpacity,
- TextInput,
- Modal,
-} from "react-native";
-import axios from "axios";
-import {
- Menu,
- MenuOptions,
- MenuOption,
- MenuTrigger,
- MenuProvider,
-} from "react-native-popup-menu";
-import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
+// import React, { useState, useEffect } from "react";
+// import { View, Text, Image, StyleSheet, TouchableOpacity, Modal, TextInput, Pressable } from "react-native";
+// import { SafeAreaView } from "react-native-safe-area-context";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
+// import * as ImagePicker from 'expo-image-picker';
+// import { useRouter } from "expo-router";
 
-interface TodoItem {
- id: number;
- title: string;
- description: string;
- deadline: string;
- completed: boolean;
-}
+// const Account = () => {
+//   const [user, setUser] = useState<{
+//     _id: string;
+//     email: string;
+//     phone: string;
+//     fullNames: string;
+//     role: string;
+//     profile: string;
+//   }>();
+//   const [modalVisible, setModalVisible] = useState(false);
+//   const [passwordModalVisible, setPasswordModalVisible] = useState(false);
+//   const [form, setForm] = useState({
+//     fullNames: "",
+//     phone: "",
+//     email: "",
+//     profile: ""
+//   });
+//   const [passwordForm, setPasswordForm] = useState({
+//     currentPassword: "",
+//     newPassword: "",
+//     confirmPassword: "",
+//   });
+//   const [image, setImage] = useState<string | null>(null);
+//   const router = useRouter();
 
-const TodoList = () => {
- const [todos, setTodos] = useState<TodoItem[]>([]);
- const [isModalVisible, setIsModalVisible] = useState(false);
- const [newTodo, setNewTodo] = useState({
-  title: "",
-  description: "",
-  deadline: "",
- });
+//   const getUser = async () => {
+//     try {
+//       const token = await AsyncStorage.getItem('token');
+//       const userId = await AsyncStorage.getItem('userId');
+//       const response = await fetch(`https://pmt-server-x700.onrender.com/api/v1/users/view/${userId}`, {
+//         headers: {
+//           'Authorization': `Bearer ${token}`
+//         }
+//       });
+//       const userData = await response.json();
+//       setUser(userData);
+//       setForm({
+//         fullNames: userData.fullNames,
+//         phone: userData.phone,
+//         email: userData.email,
+//         profile: userData.profile
+//       });
+//     } catch (error) {
+//       console.error("Error fetching user data:", error);
+//     }
+//   };
 
- const [selectedOption, setSelectedOption] = useState<string | null>(null);
+//   useEffect(() => {
+//     getUser();
+//   }, []);
 
- useEffect(() => {
-  const fetchTodos = async () => {
-   try {
-    const response = await axios.get(
-     "https://pmt-server-x700.onrender.com/api/v1/todo/view"
-    );
-    console.log("Fetched todos:", response.data);
+//   const handleImagePick = async () => {
+//     const result = await ImagePicker.launchImageLibraryAsync({
+//       mediaTypes: ImagePicker.MediaTypeOptions.Images,
+//       allowsEditing: true,
+//       aspect: [4, 3],
+//       quality: 1,
+//     });
 
-    const fetchedTodos = response.data.data.data;
-    setTodos(fetchedTodos);
-   } catch (error) {
-    console.error("Error fetching todos:", error);
-   }
-  };
+//     if (!result.cancelled) {
+//       const pickedImage = result;
+//       setImage(pickedImage.uri);
+//       setForm({ ...form, profile: pickedImage.uri });
+//     }
+//   };
 
-  fetchTodos();
- }, []);
+//   const handleLogout = async () => {
+//     await AsyncStorage.removeItem("token");
+//     router.replace("/");
+//   };
 
- const handleAddTodo = async () => {
-  try {
-   const response = await axios.post(
-    "https://pmt-server-x700.onrender.com/api/v1/todo/create",
-    newTodo
-   );
-   setTodos([...todos, response.data.data]);
-   setNewTodo({ title: "", description: "", deadline: "" });
-   setIsModalVisible(false);
-  } catch (error) {
-   console.error("Error adding todo:", error);
-  }
- };
+//   const handleUpdateProfile = async () => {
+//     const token = await AsyncStorage.getItem('token');
+//     const userId = await AsyncStorage.getItem('userId');
+//     const formData = new FormData();
 
- const renderItem = ({ item }: { item: TodoItem }) => (
-  <View style={styles.todoItem}>
-   <View style={styles.todoTextContainer}>
-    <Text style={[styles.todoTitle, item.completed && styles.completedText]}>
-     {item.title}
-    </Text>
-    <Text style={styles.todoDescription}>{item.description}</Text>
-    <Text style={styles.todoDeadline}>
-     Deadline: {new Date(item.deadline).toISOString().split("T")[0]}
-    </Text>
-   </View>
-   <Menu>
-    <MenuTrigger>
-     <Ionicons name="ellipsis-vertical" size={24} color="black" />
-    </MenuTrigger>
-    <MenuOptions>
-     {["View", "Edit", "Complete", "Delete"].map((option) => (
-      <MenuOption
-       key={option}
-       onSelect={() => alert(`${option} ${item.title}`)}
-       customStyles={{
-        optionWrapper: [
-         styles.menuOptionWrapper,
-         selectedOption === option && styles.selectedOption,
-        ],
-       }}
-      >
-       <TouchableOpacity
-        onPressIn={() => setSelectedOption(option)}
-        onPressOut={() => setSelectedOption(null)}
-       >
-        <Text style={styles.menuOptionText}>{option}</Text>
-       </TouchableOpacity>
-      </MenuOption>
-     ))}
-    </MenuOptions>
-   </Menu>
-  </View>
- );
+//     formData.append("fullNames", form.fullNames);
+//     formData.append("phone", form.phone);
+//     formData.append("email", form.email);
 
- return (
-  <MenuProvider>
-   <SafeAreaView style={styles.container}>
-    <View style={styles.headerContainer}>
-     <TouchableOpacity
-      onPress={() => setIsModalVisible(false)}
-      style={styles.backButton}
-     >
-      <Ionicons name="arrow-back" size={24} color="black" />
-     </TouchableOpacity>
-     <Text style={styles.header}>To-Do List</Text>
-     <TouchableOpacity
-      style={[
-       styles.addButton,
-       { alignSelf: "flex-end", backgroundColor: "#19459d" },
-      ]}
-      onPress={() => setIsModalVisible(true)}
-     >
-      <Ionicons name="add" size={24} color="white" />
-     </TouchableOpacity>
-    </View>
-    <Modal
-     visible={isModalVisible}
-     transparent={true}
-     animationType="slide"
-     onRequestClose={() => setIsModalVisible(false)}
-    >
-     <View style={styles.modalContainer}>
-      <View style={styles.modalContent}>
-       <Text style={styles.modalHeader}>Add To-Do</Text>
-       <TextInput
-        style={styles.input}
-        placeholder="Title"
-        value={newTodo.title}
-        onChangeText={(text) => setNewTodo({ ...newTodo, title: text })}
-       />
-       <TextInput
-        style={styles.input }
-        placeholder="Description"
-        value={newTodo.description}
-        onChangeText={(text) => setNewTodo({ ...newTodo, description: text })}
-       />
-       <TextInput
-        style={styles.input}
-        placeholder="Deadline (YYYY-MM-DD)"
-        value={newTodo.deadline}
-        onChangeText={(text) => setNewTodo({ ...newTodo, deadline: text })}
-       />
-       <View style={styles.modalButtons}>
-        <TouchableOpacity style={styles.leftButton} onPress={handleAddTodo}>
-         <Text style={[styles.buttonText, { backgroundColor: "#19459d" }]}>
-          Add
-         </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-         style={[styles.rightButton, { backgroundColor: "#ff6d6d" }]}
-         onPress={() => setIsModalVisible(false)}
-        >
-         <Text style={styles.buttonText}>Cancel</Text>
-        </TouchableOpacity>
-       </View>
-      </View>
-     </View>
-    </Modal>
-    <FlatList
-     data={todos}
-     renderItem={renderItem}
-     keyExtractor={(item) =>
-      item.id ? item.id.toString() : Math.random().toString()
-     }
-    />
-   </SafeAreaView>
-  </MenuProvider>
- );
-};
+//     if (image) {
+//       const uriParts = image.split('.');
+//       const fileType = uriParts[uriParts.length - 1];
+//       formData.append("profile", {
+//         uri: image,
+//         name: `profile.${fileType}`,
+//         type: `image/${fileType}`,
+//       } as any);
+//     }
 
-const styles = StyleSheet.create({
- container: {
-  flex: 1,
-  paddingHorizontal: 9,
-  backgroundColor: "#fff",
- },
- headerContainer: {
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "space-between",
-  marginBottom: 20,
- },
- header: {
-  fontSize: 24,
-  fontWeight: "bold",
-  textAlign: "center",
-  flex: 1,
- },
- todoItem: {
-  padding: 15,
-  borderBottomWidth: 1,
-  borderBottomColor: "#ccc",
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
- },
- todoTextContainer: {
-  flex: 1,
- },
- todoTitle: {
-  fontWeight: "bold",
-  fontSize: 16,
- },
- completedText: {
-  textDecorationLine: "line-through",
-  color: "#888",
- },
- todoDescription: {
-  fontSize: 14,
-  color: "#666",
- },
- todoDeadline: {
-  fontSize: 12,
-  color: "#888",
- },
- menuOptionText: {
-  padding: 10,
-  fontSize: 16,
-  color: "#000",
- },
- menuOptionWrapper: {
-  padding: 10,
- },
- selectedOption: {
-  backgroundColor: "#ddd",
- },
- addButton: {
-  backgroundColor: "#007AFF",
-  padding: 10,
-  borderRadius: 50,
-  alignItems: "center",
-  justifyContent: "center",
- },
- modalContainer: {
-  flex: 1,
-  justifyContent: "center",
-  alignItems: "center",
-  backgroundColor: "rgba(0, 0, 0, 0.5)",
- },
- modalContent: {
-  backgroundColor: "white",
-  padding: 20,
-  borderRadius: 10,
-  width: "80%",
- },
- modalHeader: {
-  fontSize: 20,
-  fontWeight: "bold",
-  marginBottom: 10,
- },
- input: {
-  borderWidth: 1,
-  borderColor: "#ccc",
-  borderRadius: 5,
-  padding: 10,
-  marginBottom: 10,
- },
- modalButtons: {
-  flexDirection: "row",
-  justifyContent: "space-around",
-  marginTop: 10,
- },
- backButton: {
-  padding: 10,
- },
- button: {
-  flex: 1,
-  alignItems: "center",
-  justifyContent: "center",
-  paddingVertical: 12,
-  marginHorizontal: 5,
-  borderRadius: 5,
- },
- buttonText: {
-  color: "white",
-  fontSize: 16,
-  fontWeight: "bold",
- },
- leftButton: {
-  flex: 1,
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: "#19459d",
-  borderRadius: 5,
-  marginHorizontal: 5,
-  paddingVertical: 12,
- },
- rightButton: {
-  flex: 1,
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: "red",
-  borderRadius: 5,
-  marginHorizontal: 5,
-  paddingVertical: 12,
- },
-});
+//     try {
+//       const response = await fetch(`https://pmt-server-x700.onrender.com/api/v1/users/edit/${userId}`, {
+//         method: 'PATCH',
+//         headers: {
+//           'Authorization': `Bearer ${token}`,
+//           'Content-Type': 'multipart/form-data',
+//         },
+//         body: formData,
+//       });
 
-export default TodoList;
+//       if (!response.ok) {
+//         throw new Error(`Failed to update profile: ${response.status} - ${response.statusText}`);
+//       }
+
+//       const updatedUser = await response.json();
+//       setUser(updatedUser);
+//       setForm({
+//         fullNames: updatedUser.fullNames,
+//         phone: updatedUser.phone,
+//         email: updatedUser.email,
+//         profile: updatedUser.profile,
+//       });
+//       await AsyncStorage.setItem("user", JSON.stringify(updatedUser));
+//       setModalVisible(false);
+//     } catch (error) {
+//       console.error("Error updating profile:", error);
+//       alert("An error occurred while updating profile. Please try again.");
+//     }
+//   };
+
+//   const handleChangePassword = async () => {
+//     const token = await AsyncStorage.getItem('token');
+//     const userId = await AsyncStorage.getItem('userId');
+
+//     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+//       alert("New password and confirmation password do not match");
+//       return;
+//     }
+
+//     try {
+//       const response = await fetch(`https://pmt-server-x700.onrender.com/api/v1/users/changePassword/${userId}`, {
+//         method: 'PATCH',
+//         headers: {
+//           'Authorization': `Bearer ${token}`,
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({
+//           currentPassword: passwordForm.currentPassword,
+//           newPassword: passwordForm.newPassword,
+//         }),
+//       });
+
+//       if (!response.ok) {
+//         throw new Error(`Failed to change password: ${response.status} - ${response.statusText}`);
+//       }
+
+//       const result = await response.json();
+//       alert(result.message);
+//       setPasswordModalVisible(false);
+//     } catch (error) {
+//       console.error("Error changing password:", error);
+//       alert("An error occurred while changing password. Please try again.");
+//     }
+//   };
+
+//   return (
+//     <SafeAreaView style={{ flex: 1 }}>
+//       <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 20 }}>
+//         <TouchableOpacity onPress={() => router.back()}>
+//           <Text style={{ fontSize: 16, color: "#007BFF" }}>Back</Text>
+//         </TouchableOpacity>
+//         <Text style={{ fontSize: 24, fontWeight: "bold", flex: 1, textAlign: "center" }}>Account</Text>
+//         <TouchableOpacity onPress={handleLogout}>
+//           <Text style={{ fontSize: 16, color: "#FF0000" }}>Logout</Text>
+//         </TouchableOpacity>
+//       </View>
+
+//       <View style={{ alignItems: "center", marginVertical: 20 }}>
+//         <Image source={{ uri: user?.profile }} style={{ width: 100, height: 100, borderRadius: 50, marginBottom: 10 }} />
+//         <TouchableOpacity onPress={handleImagePick}>
+//           <Text style={{ color: "#007BFF" }}>Change Photo</Text>
+//         </TouchableOpacity>
+//       </View>
+
+//       <View style={{ paddingHorizontal: 20 }}>
+//         <Text style={{ fontSize: 16, fontWeight: "bold", marginTop: 10 }}>Full Names:</Text>
+//         <Text style={{ fontSize: 16, marginBottom: 10 }}>{user?.fullNames}</Text>
+
+//         <Text style={{ fontSize: 16, fontWeight: "bold", marginTop: 10 }}>Phone:</Text>
+//         <Text style={{ fontSize: 16, marginBottom: 10 }}>{user?.phone}</Text>
+
+//         <Text style={{ fontSize: 16, fontWeight: "bold", marginTop: 10 }}>Email:</Text>
+//         <Text style={{ fontSize: 16, marginBottom: 10 }}>{user?.email}</Text>
+
+//         <TouchableOpacity
+//           style={{ backgroundColor: "#007BFF", padding: 10, borderRadius: 5, alignItems: "center", marginTop: 10 }}
+//           onPress={() => setModalVisible(true)}
+//         >
+//           <Text style={{ color: "#fff", fontSize: 16 }}>Edit Profile</Text>
+//         </TouchableOpacity>
+
+//         <TouchableOpacity
+//           style={{ backgroundColor: "#28A745", padding: 10, borderRadius: 5, alignItems: "center", marginTop: 10 }}
+//           onPress={() => setPasswordModalVisible(true)}
+//         >
+//           <Text style={{ color: "#fff", fontSize: 16 }}>Change Password</Text>
+//         </TouchableOpacity>
+
+//         <TouchableOpacity
+//           style={{ backgroundColor: "#17A2B8", padding: 10, borderRadius: 5, alignItems: "center", marginTop: 10 }}
+//           onPress={() => router.push('HelpScreen')}
+//         >
+//           <Text style={{ color: "#fff", fontSize: 16 }}>Help</Text>
+//         </TouchableOpacity>
+
+//         <TouchableOpacity
+//           style={{ backgroundColor: "#FFC107", padding: 10, borderRadius: 5, alignItems: "center", marginTop: 10 }}
+//           onPress={() => router.push('FAQScreen')}
+//         >
+//           <Text style={{ color: "#fff", fontSize: 16 }}>FAQ</Text>
+//         </TouchableOpacity>
+//       </View>
+
+//       <Modal
+//         animationType="slide"
+//         transparent={true}
+//         visible={modalVisible}
+//         onRequestClose={() => setModalVisible(false)}
+//       >
+//         <View style={styles.modalContainer}>
+//           <View style={styles.modalView}>
+//             <Text style={styles.modalTitle}>Edit Profile</Text>
+//             <TextInput
+//               style={styles.input}
+//               placeholder="Full Names"
+//               value={form.fullNames}
+//               onChangeText={(text) => setForm({ ...form, fullNames: text })}
+//             />
+//             <TextInput
+//               style={styles.input}
+//               placeholder="Phone"
+//               value={form.phone}
+//               onChangeText={(text) => setForm({ ...form, phone: text })}
+//             />
+//             <TextInput
+//               style={styles.input}
+//               placeholder="Email"
+//               value={form.email}
+//               onChangeText={(text) => setForm({ ...form, email: text })}
+//             />
+//             <Pressable
+//               style={[styles.button, styles.buttonClose]}
+//               onPress={handleUpdateProfile}
+//             >
+//               <Text style={styles.textStyle}>Save</Text>
+//             </Pressable>
+//             <Pressable
+//               style={[styles.button, styles.buttonClose]}
+//               onPress={() => setModalVisible(false)}
+//             >
+//               <Text style={styles.textStyle}>Cancel</Text>
+//             </Pressable>
+//           </View>
+//         </View>
+//       </Modal>
+
+//       <Modal
+//         animationType="slide"
+//         transparent={true}
+//         visible={passwordModalVisible}
+//         onRequestClose={() => setPasswordModalVisible(false)}
+//       >
+//         <View style={styles.modalContainer}>
+//           <View style={styles.modalView}>
+//             <Text style={styles.modalTitle}>Change Password</Text>
+//             <TextInput
+//               style={styles.input}
+//               placeholder="Current Password"
+//               secureTextEntry
+//               value={passwordForm.currentPassword}
+//               onChangeText={(text) => setPasswordForm({ ...passwordForm, currentPassword: text })}
+//             />
+//             <TextInput
+//               style={styles.input}
+//               placeholder="New Password"
+//               secureTextEntry
+//               value={passwordForm.newPassword}
+//               onChangeText={(text) => setPasswordForm({ ...passwordForm, newPassword: text })}
+//             />
+//             <TextInput
+//               style={styles.input}
+//               placeholder="Confirm Password"
+//               secureTextEntry
+//               value={passwordForm.confirmPassword}
+//               onChangeText={(text) => setPasswordForm({ ...passwordForm, confirmPassword: text })}
+//             />
+//             <Pressable
+//               style={[styles.button, styles.buttonClose]}
+//               onPress={handleChangePassword}
+//             >
+//               <Text style={styles.textStyle}>Save</Text>
+//             </Pressable>
+//             <Pressable
+//               style={[styles.button, styles.buttonClose]}
+//               onPress={() => setPasswordModalVisible(false)}
+//             >
+//               <Text style={styles.textStyle}>Cancel</Text>
+//             </Pressable>
+//           </View>
+//         </View>
+//       </Modal>
+//     </SafeAreaView>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   modalContainer: {
+//     flex: 1,
+//     justifyContent: "center",
+//     alignItems: "center",
+//     backgroundColor: "rgba(0,0,0,0.5)",
+//   },
+//   modalView: {
+//     width: 300,
+//     backgroundColor: "white",
+//     borderRadius: 20,
+//     padding: 20,
+//     alignItems: "center",
+//     shadowColor: "#000",
+//     shadowOffset: {
+//       width: 0,
+//       height: 2,
+//     },
+//     shadowOpacity: 0.25,
+//     shadowRadius: 4,
+//     elevation: 5,
+//   },
+//   modalTitle: {
+//     fontSize: 20,
+//     fontWeight: "bold",
+//     marginBottom: 20,
+//   },
+//   input: {
+//     width: "100%",
+//     height: 40,
+//     borderColor: "#ddd",
+//     borderWidth: 1,
+//     borderRadius: 5,
+//     padding: 10,
+//     marginBottom: 10,
+//   },
+//   button: {
+//     borderRadius: 20,
+//     padding: 10,
+//     elevation: 2,
+//     marginTop: 10,
+//   },
+//   buttonClose: {
+//     backgroundColor: "#007BFF",
+//   },
+//   textStyle: {
+//     color: "white",
+//     fontWeight: "bold",
+//     textAlign: "center",
+//   },
+// });
+
+// export default Account;

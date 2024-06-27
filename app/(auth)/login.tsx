@@ -45,9 +45,8 @@ const Login = () => {
    if (response.status !== 200) setIsLoading(false);
    if (response.status === 200) {
     if (response.data.data.accessToken) {
-     // Check if accessToken is available
-     // Save the token in AsyncStorage
      await AsyncStorage.setItem("token", response.data.data.accessToken);
+     await AsyncStorage.setItem("userId", response.data.data.user._id);
      await AsyncStorage.setItem(
       "user",
       JSON.stringify(response.data.data.user)
@@ -84,6 +83,7 @@ const Login = () => {
   const checkToken = async () => {
    setIsLoading(true);
    const token = await AsyncStorage.getItem("token");
+   const userId = await AsyncStorage.getItem("userId");
    if (token) {
     setIsLoading(false);
     router.replace("/home");
@@ -157,7 +157,7 @@ const Login = () => {
         <CustomButton
          title='Confirm'
          containerStyles='bg-primary w-full rounded-[32px] h-[70px]'
-         handlePress={handleSubmit as any} // TypeScript workaround for handleSubmit type
+         handlePress={handleSubmit as any} 
          textStyles='text-white-100'
          disabled={isSubmitting}
         />

@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from "@expo/vector-icons";
-import jwt_decode from 'jwt-decode';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface User {
   _id: string;
@@ -12,31 +12,61 @@ interface User {
   profile: string;
 }
 
-interface DecodedToken {
+interface ChatItem {
   _id: string;
-  fullNames: string;
-  email: string;
-  phone: string;
-  role: string;
-  iat: number;
+  privateUser1: {
+    _id: string;
+    fullNames: string;
+    profile: string;
+  };
+  privateUser2: {
+    _id: string;
+    fullNames: string;
+    profile: string;
+  };
+  title: string;
+  time: string;
+  image: string;
 }
 
 const SelectUserScreen = () => {
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
-  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjVjMTQ3NjBlM2EyYjBhOGEwOTQ1YTQiLCJlbWFpbCI6ImdkdXNoaW1pbWFuYTZAZ21haWwuY29tIiwicGhvbmUiOiIwNzg0NjAwNzYyIiwiZnVsbE5hbWVzIjoiRHVzaGltaW1hbmEiLCJyb2xlIjoic3Rha2Vob2xkZXIiLCJpYXQiOjE3MTczMzk4NzR9.4VsTqey9dI3jV2LNljl0sGvEo5x9gDN8sGadxuhaXCY';
-  // const decodedToken: DecodedToken = jwt_decode(token);
 
-  // Route back
+  useEffect(() => {
+    const fetchToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const userId = await AsyncStorage.getItem('userId');
+        if (token) {
+          setToken(token);
+          setUserId(userId);
+        } else {
+          router.push('/home');
+        }
+      } catch (error) {
+        console.error("Error fetching token:", error);
+      }
+    };
+
+    fetchToken();
+  }, [router]);
+
+  console.log('userId1:', userId);
+
   const goback = () => {
     router.back();
-  }
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
+      setLoading(true);
       try {
+        const token = await AsyncStorage.getItem('token');
         const response = await axios.get('https://pmt-server-x700.onrender.com/api/v1/users/view', {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -46,31 +76,20 @@ const SelectUserScreen = () => {
 
         setUsers(response.data.data.data);
       } catch (error: any) {
-        if (error.response) {
-          console.error('Server responded with error:', error.response.data);
-        } else if (error.request) {
-          console.error('No response received:', error.request);
-        } else {
-          console.error('Request setup error:', error.message);
-        }
+        console.error("Error fetching users:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchUsers();
-  }, []);
+  }, [token]);
 
-  const createChatAndNavigate = async (user: User) => {
+  const createOrNavigateChat = async (user: User) => {
     try {
-      const response = await axios.post(
-        'https://pmt-server-x700.onrender.com/api/v1/chats/create-individual',
-        {
-          title: user.fullNames,
-          image: user.profile,
-          type: 'private',
-          privateUser2: user._id,
-        },
+      // Check if chat exists
+      const checkChatResponse = await axios.get(
+        `https://pmt-server-x700.onrender.com/api/v1/chats/check/${userId}/${user._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -78,23 +97,66 @@ const SelectUserScreen = () => {
           },
         }
       );
-
-      if (response.data.data) {
-        router.push({ pathname: '/ChatRoomScreen', params: { chatId: response.data.data._id, user: JSON.stringify(user) } });
+  
+      if (checkChatResponse.data.exists) {
+        // Navigate to existing chat
+        router.push({
+          pathname: '/ChatRoomScreen',
+          params: {
+            chatId: checkChatResponse.data.chatId,
+            user: JSON.stringify(user),
+            chatTitle: user.fullNames, 
+            chatImage: user.profile,   
+          },
+        });
+      } else {
+        // Create new chat
+        console.log('Creating new chat...');
+        const response = await axios.post(
+          'https://pmt-server-x700.onrender.com/api/v1/chats/create-individual',
+          {
+            title: user.fullNames,
+            image: user.profile,
+            type: 'private',
+            privateUser1: userId,
+            privateUser2: user._id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+        console.log('Creating new chat...',user.fullNames);
+        console.log('user._id',user._id);
+        if (response.data.data) {
+          router.push({
+            pathname: '/ChatRoomScreen',
+            params: {
+              chatId: response.data.data._id,
+              user: JSON.stringify(user),
+              chatTitle: user.fullNames, 
+              chatImage: user.profile,   
+            },
+          });
+        }
       }
     } catch (error: any) {
+      console.error("Error creating or navigating chat:", error);
       if (error.response) {
-        console.error('Server responded with error:', error.response.data);
-      } else if (error.request) {
-        console.error('No response received:', error.request);
-      } else {
-        console.error('Request setup error:', error.message);
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
       }
     }
   };
+  
+ 
+  
+  
 
   const renderItem = ({ item }: { item: User }) => (
-    <TouchableOpacity onPress={() => createChatAndNavigate(item)}>
+    <TouchableOpacity onPress={() => createOrNavigateChat(item)}>
       <View style={styles.userItem}>
         <Image source={{ uri: item.profile }} style={styles.profileImage} />
         <Text style={styles.name}>{item.fullNames}</Text>
@@ -119,7 +181,7 @@ const SelectUserScreen = () => {
           }}
           style={styles.backButton}
         >
-          <Ionicons name="arrow-back" size={24} color="black" />
+          <Ionicons name="arrow-back" size={24} color="#19459d" />
         </TouchableOpacity>
         <Text style={styles.header}>CONTACTS</Text>
       </View>
@@ -127,7 +189,7 @@ const SelectUserScreen = () => {
       <FlatList
         data={users}
         renderItem={renderItem}
-        keyExtractor={item => item._id}
+        keyExtractor={(item) => item._id}
         contentContainerStyle={styles.list}
       />
     </SafeAreaView>
@@ -146,20 +208,30 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 16,
+    marginVertical: 8,
+    marginLeft: 8,
+    marginRight: 8,
+    width: '100%',
   },
   backButton: {
     padding: 10,
   },
   header: {
     fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
+    fontWeight: 'bold',
+    textAlign: 'center',
     flex: 1,
   },
   headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 20,
   },
   userItem: {

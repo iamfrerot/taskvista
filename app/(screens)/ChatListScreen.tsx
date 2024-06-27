@@ -1,11 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { View, FlatList, Image, Text, StyleSheet, ListRenderItem, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useCallback, useState, useEffect } from 'react';
+import { View, FlatList, Image, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import axios from 'axios';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface ChatItem {
   _id: string;
+  privateUser1: {
+    _id: string;
+    fullNames: string;
+    profile: string;
+  };
   privateUser2: {
     _id: string;
     fullNames: string;
@@ -13,7 +19,7 @@ interface ChatItem {
   };
   title: string;
   time: string;
-  image:string;
+  image: string;
 }
 
 const ChatListScreen = () => {
@@ -21,38 +27,71 @@ const ChatListScreen = () => {
   const [chats, setChats] = useState<ChatItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchChats = async () => {
+    const fetchToken = async () => {
       try {
-        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjVjMTQ3NjBlM2EyYjBhOGEwOTQ1YTQiLCJlbWFpbCI6ImdkdXNoaW1pbWFuYTZAZ21haWwuY29tIiwicGhvbmUiOiIwNzg0NjAwNzYyIiwiZnVsbE5hbWVzIjoiRHVzaGltaW1hbmEiLCJyb2xlIjoic3Rha2Vob2xkZXIiLCJpYXQiOjE3MTczMzk4NzR9.4VsTqey9dI3jV2LNljl0sGvEo5x9gDN8sGadxuhaXCY';
-
-        const response = await axios.get('https://pmt-server-x700.onrender.com/api/v1/chats/view', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        setChats(response.data.data.data);
-        setLoading(false);
-      } catch (err: any) {
-        setError('Failed to load chats');
-        setLoading(false);
+        const token = await AsyncStorage.getItem('token');
+        const userId = await AsyncStorage.getItem('userId');
+        if (token) {
+          setToken(token);
+          setUserId(userId);
+        } else {
+          router.push('/home');
+        }
+      } catch (error) {
+        console.error("Error fetching token:", error);
+        setError("Failed to fetch token");
       }
     };
 
-    fetchChats();
-  }, []);
+    fetchToken();
+  }, [router]);
 
-  const renderItem: ListRenderItem<ChatItem> = ({ item }) => (
-    <TouchableOpacity onPress={() => router.push({ pathname: '/GroupChatRoomScreen', params: { user: JSON.stringify(item.privateUser2) } })}>
+  const fetchChats = useCallback(async () => {
+    setLoading(true);
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        router.replace('/home');
+        return;
+      }
+      const response = await axios.get('https://pmt-server-x700.onrender.com/api/v1/chats/my-chats', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const chatData = response.data.data.data;
+      setChats(chatData);
+    } catch (err) {
+      setError('Failed to load chats');
+    } finally {
+      setLoading(false);
+    }
+  }, [router]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchChats();
+    }, [fetchChats])
+  );
+
+  const handleChatPress = (chat: ChatItem) => {
+    router.push({
+      pathname: '/ChatRoomScreen',
+      params: { chatId: chat._id, chatTitle: chat.title, chatImage: chat.image },
+    });
+  };
+
+  const renderItem = ({ item }: { item: ChatItem }) => (
+    <TouchableOpacity onPress={() => handleChatPress(item)}>
       <View style={styles.chatItem}>
         <Image source={{ uri: item.image }} style={styles.profileImage} />
         <View style={styles.textContainer}>
-        <Text style={styles.name}>{item.title}</Text>
-          {/* <Text style={styles.lastMessage}>{item.privateUser2.fullNames}</Text> */}
-          
+          <Text style={styles.name}>{item.title}</Text>
         </View>
         <Text style={styles.time}>{item.time}</Text>
       </View>
@@ -77,12 +116,18 @@ const ChatListScreen = () => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={chats}
-        renderItem={renderItem}
-        keyExtractor={item => item._id}
-        style={styles.list}
-      />
+      {chats.length === 0 ? (
+        <View style={styles.noChatsContainer}>
+          <Text style={styles.noChatsText}>No chats available 😞</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={chats}
+          renderItem={renderItem}
+          keyExtractor={item => item._id}
+          style={styles.list}
+        />
+      )}
       <TouchableOpacity style={styles.newChatButton} onPress={() => router.push('/SelectUserScreen')}>
         <Ionicons name="chatbubble" size={24} color="#fff" />
       </TouchableOpacity>
@@ -114,12 +159,12 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ccc',
     borderRadius: 25,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: '#ccc',
     padding: 16,
     marginVertical: 8,
     marginLeft: 8,
     marginRight: 8,
-    width: "100%",
+    width: '100%',
   },
   chatItem: {
     flexDirection: 'row',
@@ -141,9 +186,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  lastMessage: {
-    color: '#888',
-  },
   time: {
     color: '#888',
     fontSize: 12,
@@ -156,6 +198,15 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     padding: 10,
     elevation: 3,
+  },
+  noChatsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noChatsText: {
+    fontSize: 18,
+    color: '#888',
   },
 });
 
