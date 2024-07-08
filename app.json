@@ -7,6 +7,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "owner": "ineza",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -33,7 +34,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "b14e4eff-ab14-4319-82ae-6a526ad40fdf"
+        "projectId": "41b45ea6-910e-43dc-9de5-b925f40cc61f"
       }
     }
   }

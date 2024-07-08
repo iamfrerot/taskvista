@@ -9,49 +9,51 @@ import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 const home = () => {
- const [user, setUser] = useState<{
-  _id: string;
-  email: string;
-  phone: number;
-  fullNames: string;
-  role: string;
-  profile: string;
- }>();
- const getuser = async () => {
-  const userData = (await AsyncStorage.getItem("user")) as string;
-  const user = JSON.parse(userData);
-  setUser(user);
- };
- useEffect(() => {
-  getuser();
- }, []);
- return (
-  <SafeAreaView>
-   <View className='pb-[140px]'>
-    <View className='flex-row justify-between items-center px-4 py-4'>
-     <ProfileHome img={`${user?.profile}`} name={`${user?.fullNames}`} />
-     <TouchableOpacity className='p-3 border border-gray-300 rounded-full items-center justify-center '>
+  const [user, setUser] = useState<{
+    _id: string;
+    email: string;
+    phone: number;
+    fullNames: string;
+    role: string;
+    profile: string;
+  }>();
+  const getuser = async () => {
+    const userData = (await AsyncStorage.getItem("user")) as string;
+    const user = JSON.parse(userData);
+    setUser(user);
+  };
+  useEffect(() => {
+    getuser();
+  }, []);
+  return (
+    <SafeAreaView>
+      <View className="pb-[140px]">
+        <View className="flex-row justify-between items-center px-4 py-4">
+          <ProfileHome img={`${user?.profile}`} name={`${user?.fullNames}`} />
+          {/* <TouchableOpacity className='p-3 border border-gray-300 rounded-full items-center justify-center '>
       {false ? (
        <Ionicons name='mail-unread' size={23} color='green' />
       ) : (
        <Ionicons name='mail' size={23} color='#d1d5db' />
       )}
-     </TouchableOpacity>
-    </View>
-    <ScrollView showsVerticalScrollIndicator={false}>
-     <TaskCompeted />
-     <TaskHome />
-     <ProjectHome />
-     <TouchableOpacity
-      className='bg-primary rounded-full self-center shadow-2xl '
-      onPress={() => router.push("(create)/createproject")}
-     >
-      <Ionicons name='add-outline' size={70} color='white' />
-     </TouchableOpacity>
-    </ScrollView>
-   </View>
-  </SafeAreaView>
- );
+     </TouchableOpacity> */}
+        </View>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <TaskCompeted />
+          <TaskHome />
+          <ProjectHome />
+          {user && user.role === "admin" && (
+            <TouchableOpacity
+              className="bg-primary rounded-full self-center shadow-2xl "
+              onPress={() => router.push("(create)/createproject")}
+            >
+              <Ionicons name="add-outline" size={70} color="white" />
+            </TouchableOpacity>
+          )}
+        </ScrollView>
+      </View>
+    </SafeAreaView>
+  );
 };
 
 export default home;
